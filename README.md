@@ -11,26 +11,26 @@ The first three figures show the different types of boundary method projected ov
 
 'colorface'
 
-<img src="./figures/ROIS_colorface_flat.png" width="100%">
+<img src="./figures/ROIS_colorface_flat.png" width="50%">
 
 'midpoint'
 
-<img src="./figures/ROIS_midpoint_flat.png" width="100%">
+<img src="./figures/ROIS_midpoint_flat.png" width="50%">
 
 'centroid'
 
-<img src="./figures/ROIS_centroid_flat.png" width="100%">
+<img src="./figures/ROIS_centroid_flat.png" width="50%">
 
 The next three figures show the different types of boundary method projected over the surface where each face is coloured according to an interpolated value of the vertex values (which in this case is the sulcal depth of each vertex).
 
 'colorface'
 
-<img src="./figures/sulc_colorface_flat.png" width="100%">
+<img src="./figures/sulc_colorface_flat.png" width="50%">
 
 'midpoint'
 
-<img src="./figures/sulc_midpoint_interp.png" width="100%">
+<img src="./figures/sulc_midpoint_interp.png" width="50%">
 
 'centroid'
 
-<img src="./figures/sulc_centroid_interp.png" width="100%">
+<img src="./figures/sulc_centroid_interp.png" width="50%">
