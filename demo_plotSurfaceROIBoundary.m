@@ -6,7 +6,7 @@ load('example_surface_data.mat','lh_inflated_verts','lh_verts','lh_faces','lh_HC
 surface.vertices = lh_inflated_verts;
 surface.faces = lh_faces;
 
-ax1 = subplot(1,3,1);
+ax1 = axes('Position',[0.01 0 .3 1]);
 
 plotSurfaceROIBoundary(surface,lh_rand200,1:100,'faces',jet(100),1,2);
 
@@ -20,7 +20,7 @@ axis off
 axis tight
 axis equal
 
-ax2 = subplot(1,3,2);
+ax2 = axes('Position',[0.01+(1/3) 0 .3 1]);
 
 cmap = flipud(hot(130));
 
@@ -37,7 +37,7 @@ axis off
 axis tight
 axis equal
 
-ax3 = subplot(1,3,3);
+ax3 = axes('Position',[0.01+(2/3) 0 .3 1]);
 
 surface.vertices = lh_verts;
 plotSurfaceROIBoundary(surface,lh_aparc,lh_sulc,'centroid',parula(100),1,2);
