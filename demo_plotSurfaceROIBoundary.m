@@ -6,7 +6,11 @@ load('example_surface_data.mat','lh_inflated_verts','lh_verts','lh_faces','lh_HC
 surface.vertices = lh_inflated_verts;
 surface.faces = lh_faces;
 
+figure
+
 ax1 = axes('Position',[0.01 0 .3 1]);
+
+% This just plots the ROI ID number for each ROI
 
 plotSurfaceROIBoundary(surface,lh_rand200,1:100,'faces',jet(100),1,2);
 
@@ -24,7 +28,8 @@ ax2 = axes('Position',[0.01+(1/3) 0 .3 1]);
 
 cmap = flipud(hot(130));
 
-% Just make up some data for the example illustration
+% Just make up some data for the example illustration. This represents some
+% value for each ROI
 random_data = normpdf(1:180,100,100);
 
 plotSurfaceROIBoundary(surface,lh_HCPMMP1,random_data,'midpoint',cmap(1:100,:),1,2);
@@ -38,6 +43,8 @@ axis tight
 axis equal
 
 ax3 = axes('Position',[0.01+(2/3) 0 .3 1]);
+
+% This plots sulcal depth, which is defined for each vertex
 
 surface.vertices = lh_verts;
 plotSurfaceROIBoundary(surface,lh_aparc,lh_sulc,'centroid',parula(100),1,4);
@@ -62,6 +69,8 @@ for i = 1:6
 
 figure
     
+% The data here is just each ROIs own ID number
+
     if i < 4
         data = 1:100;
         cmap = lines(34);
@@ -83,7 +92,7 @@ axis equal
 
 colormap(new_cmap)
 
-% This will zoom into the area of interest    
+% This just zooms into the area of interest    
 ylim([-25.2699   -8.7600])
 zlim([20.2174   31.3705])
 
