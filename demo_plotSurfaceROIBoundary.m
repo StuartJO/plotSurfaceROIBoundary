@@ -90,8 +90,6 @@ axis off
 axis tight
 axis equal
 
-colormap(new_cmap)
-
 % This just zooms into the area of interest    
 ylim([-25.2699   -8.7600])
 zlim([20.2174   31.3705])

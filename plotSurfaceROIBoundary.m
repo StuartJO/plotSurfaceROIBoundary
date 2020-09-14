@@ -136,13 +136,5 @@ switch boundary_method
            boundary_plot.boundary(i) = plot3(BOUNDARY{i}(:,1), BOUNDARY{i}(:,2), BOUNDARY{i}(:,3), 'Color', 'k', 'LineWidth',linewidth,'Clipping','off');
         end
     otherwise
+        boundary_plot = [];
 end
-
-% camlight(80,-10);
-% camlight(-80,-10);
-% 
-% view([-90 0])
-% 
-% axis off
-% axis tight
-% axis equal
