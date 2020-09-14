@@ -129,8 +129,16 @@ if colorFaceBoundaries == 1
                         
             % Assign faces their new values
 
-            FaceVertexCData = changem(FACES_ROI_DATA,[boundary_val unknown_val data(1:Nrois)],[-inf 0:Nrois]);            
+            %FaceVertexCData = changem(FACES_ROI_DATA,[boundary_val unknown_val data(1:Nrois)],[-inf 0:Nrois]);            
+            newval = [boundary_val unknown_val data(1:Nrois)];
+            oldval = [-inf 0:Nrois];
+            
+            FaceVertexCData = FACES_ROI_DATA;
+            for k = 1:numel(newval)
+                FaceVertexCData(FACES_ROI_DATA == oldval(k)) = newval(k);
+            end
 
+            
             % Define the new colormap limits
             
             new_climits = [boundary_val cmax];
@@ -181,7 +189,12 @@ if colorFaceBoundaries == 1
                 
                 new_climits = [boundary_val cmax];
 
-                FaceVertexCData = changem(FACES_ROI_DATA,boundary_val,-inf);
+                %FaceVertexCData = changem(FACES_ROI_DATA,boundary_val,-inf);
+                            
+                FaceVertexCData = FACES_ROI_DATA;
+                
+                FaceVertexCData(FACES_ROI_DATA == -inf) = boundary_val;
+                
 
             elseif colorUnknownGrey == 1 || sum(isnan(data)) ~= 0
 
@@ -211,7 +224,11 @@ if colorFaceBoundaries == 1
 
                 new_climits = [boundary_val cmax];
                 
-                FaceVertexCData = changem(FACES_ROI_DATA,[boundary_val unknown_val],[-inf inf]);
+                %FaceVertexCData = changem(FACES_ROI_DATA,[boundary_val unknown_val],[-inf inf]);
+
+                FaceVertexCData = FACES_ROI_DATA;
+                FaceVertexCData(FACES_ROI_DATA == -inf) = boundary_val;
+                FaceVertexCData(FACES_ROI_DATA == inf) = unknown_val;
 
             end
 
@@ -269,7 +286,15 @@ elseif colorFaceBoundaries == 0
         
         data(isnan(data)) = unknown_val;
 
-        FaceVertexCData = changem(vertex_id,[unknown_val data(1:Nrois)],0:1:Nrois);    
+        %FaceVertexCData = changem(vertex_id,[unknown_val data(1:Nrois)],0:1:Nrois);    
+        
+        newval = [unknown_val data(1:Nrois)];
+        oldval = 0:Nrois;
+
+        FaceVertexCData = vertex_id;
+        for k = 1:numel(newval)
+            FaceVertexCData(vertex_id == oldval(k)) = newval(k);
+        end
         
     end
 
