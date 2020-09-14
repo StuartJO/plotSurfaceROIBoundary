@@ -1,11 +1,10 @@
 # plotSurfaceROIBoundary
-Plot the boundaries of ROIs on a surface
 
 <img src="./figures/SurfaceBoundaryPlotsExample.png" width="100%">
 
-This script will plot the boundaries of a roi on a surface. 
+These scripts will plot the boundaries of a roi on a surface. 
 
-The script has three ways of defining a boundary, 'faces', 'midpoint', and 'centroid'.
+There are three ways of defining a boundary here, 'faces', 'midpoint', and 'centroid'.
 
 'faces' will find the faces which exist between rois and those will be coloured black to specify the boundary. 'midpoint' finds the edges that connected the vertices of two different rois and takes the midpoint of the egde and uses those coordinates to define the boundary. 'centroid' finds the faces which exist between rois and uses the centroid of those to draw the coordinates that define the boundary. demo_plotSurfaceROIBoundary.m shows examples of how the code is used. See plotSurfaceROIBoundary.m, makeFaceVertexCData.m, and findROIboundaries.m for a more detailed description. I personally recommend using 'midpoint', visually it looks the cleanest.
 
