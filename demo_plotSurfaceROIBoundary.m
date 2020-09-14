@@ -40,7 +40,7 @@ axis equal
 ax3 = axes('Position',[0.01+(2/3) 0 .3 1]);
 
 surface.vertices = lh_verts;
-plotSurfaceROIBoundary(surface,lh_aparc,lh_sulc,'centroid',parula(100),1,2);
+plotSurfaceROIBoundary(surface,lh_aparc,lh_sulc,'centroid',parula(100),1,4);
 camlight(80,-10);
 camlight(-80,-10);
 
@@ -55,6 +55,8 @@ axis equal
 
 surface.vertices = lh_inflated_verts;
 boundary_type = {'faces','midpoint','centroid','faces','midpoint','centroid'};
+linewidth = 2;
+colorUnknownGrey = 1;
 
 for i = 1:6
 
@@ -68,7 +70,7 @@ figure
         cmap = parula(100);
     end
     
-[p,~,~,~,new_climits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,1,2);
+[p,~,~,~,new_climits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
     
 camlight(80,-10);
 camlight(-80,-10);
