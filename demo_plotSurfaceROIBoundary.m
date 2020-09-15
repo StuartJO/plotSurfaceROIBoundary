@@ -79,7 +79,7 @@ figure
         cmap = parula(100);
     end
     
-[p,~,~,~,new_climits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
+[p,~,~,~,~,orig_data_limits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
     
 camlight(80,-10);
 camlight(-80,-10);
@@ -102,4 +102,4 @@ end
 % If you want to include a colorbar but don't want it to display the
 % black/grey values, you can do:
 % c = colorbar;
-% set(c, 'xlim', new_climits);
+% set(c, 'xlim', orig_data_limits);

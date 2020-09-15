@@ -180,8 +180,16 @@ switch boundary_method
         % Relabel the faces from 1:nfaces so the boundary of the roi can be
         % found easily using graph theory methods
         
-        roi_boundaryfaces_ordered = changem(edge_roi_boundaryfaces,1:nfaces,roi_faces);
+        %roi_boundaryfaces_ordered = changem(edge_roi_boundaryfaces,1:nfaces,roi_faces);
         
+        newval = 1:nfaces;
+        oldval = roi_faces;
+        roi_boundaryfaces_ordered = edge_roi_boundaryfaces;
+        
+        for k = 1:numel(newval)
+            roi_boundaryfaces_ordered(edge_roi_boundaryfaces == oldval(k)) = newval(k);
+        end
+    
         % Make an edge list using the relabeled faces as nodes. Each row
         % defines a pair of faces which are connected. The edge list needs
         % to be symmetric

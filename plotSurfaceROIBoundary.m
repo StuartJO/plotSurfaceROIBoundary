@@ -1,4 +1,4 @@
-function [p,boundary_plot,new_cmap,BOUNDARY,new_climits] = plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,colorUnknownGrey,linewidth,climits)
+function [p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,colorUnknownGrey,linewidth,climits)
 
 % This script is a wrapper for findROIboundaries and makeFaceVertexCData so
 % that they smoothly work together and you don't have to spend a lot of
@@ -38,11 +38,12 @@ function [p,boundary_plot,new_cmap,BOUNDARY,new_climits] = plotSurfaceROIBoundar
 % if the range specified is larger than the data itself or if the upper
 % limit is larger. However if the lower limit is larger than the smallest
 % value in data, then it may get strange. If colorUnknownGrey = 1, then
-% faces/vertices with a value smaller than the limit will be coloured grey.
-% If it is set to 0 and 'faces' is used, those regions will be set to black
-% (if 'centroid' or midpoint' are selected, the colormap will work
-% appropriately). So if you really need to enforce a lower limit I would
-% suggest threshold the data in advance and all should be good.
+% faces/vertices with a value smaller than the limit will be coloured grey,
+% or potentially black if 'faces' is used. If it is set to 0 and 'faces' is
+% used, those regions will be set to black while if 'centroid' or midpoint' 
+% are selected, the colormap will work appropriately). So if you really 
+% need to enforce a lower limit I would suggest threshold the data in 
+% advance and all should be good.
 %
 % Outputs:
 %
@@ -64,10 +65,14 @@ function [p,boundary_plot,new_cmap,BOUNDARY,new_climits] = plotSurfaceROIBoundar
 %
 % new_climits = the new caxis limits for the data.
 %
+% orig_data_climits = the limits for data. If climits is used, this is just
+% that, but if not this will give you the limits for the original data. If
+% making a colorbar this should be used to set the range of that.
+%
 % If you want to include a colorbar but don't want it to display the
 % black/grey values, you can do:
 % c = colorbar;
-% set(c, 'xlim', new_climits);
+% set(c, 'xlim', orig_data_climits);
 
 if nargin < 7
     linewidth = 2;
@@ -112,7 +117,7 @@ switch boundary_method
 end
 
 % Get the vertex or face data and colormap to use
-[FaceVertexCData,new_cmap,new_climits] = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,colorUnknownGrey,climits);
+[FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,colorUnknownGrey,climits);
 
 % Plot the surface using some preconfigured options
 p = patch(surface);
@@ -126,6 +131,7 @@ colormap(current_axes,new_cmap)
 
 % Apply the new color map limits
 caxis(new_climits)
+
 hold on
 
 % Draw the boundary if 'midpoint' or 'centroid' was used.

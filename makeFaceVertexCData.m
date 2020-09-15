@@ -1,4 +1,4 @@
-function [FaceVertexCData,new_cmap,new_climits] = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,colorUnknownGrey,climits)
+function [FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,colorUnknownGrey,climits)
 
 % This script will plot the boundaries defined by some parcellation/ROIS on
 % a surface projection. It can also alter the colormap so regions that do
@@ -43,7 +43,11 @@ function [FaceVertexCData,new_cmap,new_climits] = makeFaceVertexCData(vertices,f
 %
 % new_cmap = the new color map configured to work with the data in FaceVertexCData
 %
-% new_climits = the new caxis limits for the data.
+% new_climits = the new caxis limits for FaceVertexCData.
+%
+% orig_data_climits = the limits for data. If climits is used, this is just
+% that, but if not this will give you the limits for the original data. If
+% making a colorbar this should be used to set the range of that.
 %
 % Stuart Oldham, Monash University, 2020
 % Thanks to the coronavirus for giving me the time to make this script
@@ -72,6 +76,11 @@ end
 if size(data,1) > size(data,2)
     data = data';
 end
+
+
+cmax = nanmax(climits);
+cmin = nanmin(climits);
+orig_data_climits = [cmin cmax];
 
 if colorFaceBoundaries == 1
 
@@ -104,11 +113,8 @@ if colorFaceBoundaries == 1
             % won't affect how the colormap is applied to the data
 
             Nrois = length(data);
-
-            cmax = nanmax(climits);
-            cmin = nanmin(climits);
             
-            % The boundary will be coloured aaccording to 'boundary_color'
+            % The boundary will be coloured according to 'boundary_color'
             % and the faces that don't belong to any roi are coloured 
             % according to 'unknown_color'
 
@@ -142,7 +148,7 @@ if colorFaceBoundaries == 1
             % Define the new colormap limits
             
             new_climits = [boundary_val cmax];
-            
+
         else
 
             % Define the value of each face as the mean of the values
@@ -175,9 +181,6 @@ if colorFaceBoundaries == 1
             % boundary and unknown ROIs but the presence of these values 
             % won't affect how the colormap is applied to the data
 
-                cmax = nanmax(climits);
-                cmin = nanmin(climits);
-
                  % The boundary will be coloured according to 'boundary_color'
 
                 new_cmap = [boundary_color; cmap];
@@ -207,9 +210,6 @@ if colorFaceBoundaries == 1
                 FACES_ROI_DATA(max(faces_roi_ids,[],2)==0) = inf;
 
                 FACES_ROI_DATA(isnan(data)) = inf;
-
-                cmax = nanmax(climits);
-                cmin = nanmin(climits);
 
                 % The boundary will be coloured aaccording to 'boundary_color' and the faces
                 % they don't belong to any roi are coloured according to
@@ -249,9 +249,6 @@ elseif colorFaceBoundaries == 0
         
             % See above if you wanna know how this works, I ain't writing
             % it out again
-            
-        cmax = nanmax(climits);
-        cmin = nanmin(climits);
 
         new_cmap = [unknown_color; cmap];
         cmap_length = size(cmap,1);
@@ -272,9 +269,6 @@ elseif colorFaceBoundaries == 0
     else
         
         Nrois = length(data);
-
-        cmax = nanmax(climits);
-        cmin = nanmin(climits);
 
         new_cmap = [unknown_color; cmap];
         cmap_length = size(cmap,1);
