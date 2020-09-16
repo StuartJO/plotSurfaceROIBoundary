@@ -61,17 +61,17 @@ axis equal
 %% Demonstrate different types of plots
 
 surface.vertices = lh_inflated_verts;
-boundary_type = {'faces','midpoint','centroid','faces','midpoint','centroid'};
+boundary_type = {'faces','midpoint','centroid','edges','faces','midpoint','centroid','edges'};
 linewidth = 2;
 colorUnknownGrey = 1;
 
-for i = 1:6
+for i = 1:8
 
 figure
     
 % The data here is just each ROIs own ID number
 
-    if i < 4
+    if i < 5
         data = 1:100;
         cmap = lines(34);
     else

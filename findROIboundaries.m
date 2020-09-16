@@ -1,4 +1,4 @@
-function [BOUNDARY,BOUNDARY_ROI] = findROIboundaries(vertices,faces,vertex_id,boundary_method)
+function [BOUNDARY,BOUNDARY_ROI_ID,ROI_COMPONENTS] = findROIboundaries(vertices,faces,vertex_id,boundary_method)
 
 % This script will plot the boundaries defined by some parcellation/ROIS on
 % a surface projection. It can also alter the colormap so regions that do
@@ -12,32 +12,37 @@ function [BOUNDARY,BOUNDARY_ROI] = findROIboundaries(vertices,faces,vertex_id,bo
 %
 % vertex_id = the roi id of each vertex
 %
-% boundary_method = 'faces', 'midpoint', or 'centroid'. 'faces'
+% boundary_method = 'faces', 'midpoint', 'centroid', or 'edges'. 'faces'
 % will find the faces which exist between ROIs and those will be coloured
 % black to specify the boundary. 'midpoint' finds the edges that connected
-% the vertices of two different ROIs and takes the midpoint of the egde and
+% the vertices of two different ROIs and takes the midpoint of the edge and
 % uses those coordinates to define the boundary. 'centroid' finds the faces
 % which exist between ROIs and uses the centroid of those to draw the 
-% coordinates that define the boundary
+% coordinates that define the boundary. 'edges' finds the vertices which
+% define the boundary of the ROI and uses them for the coordinates
 %
 % Outputs:
 %
 % BOUNDARY = the boundary of the rois. For 'faces' this will be a logical
 % where a value of 1 indicates that face is on the boundary between ROIs.
-% For 'midpoint'  or 'centroid', BOUNDARY will be a cell where each element
-% contains the coordinates of the points making up the boundary, which can
-% be plotted as a line. Note that each boundary defines a continuous ROIs,
-% if a ROI is made up of multiple non-continuous parts (i.e., the ROI is
-% made up of multiple unconnected sections), there will be a boundary for
-% each of those parts
+% For 'midpoint', 'centroid' or 'edges', BOUNDARY will be a cell where each 
+% element contains the coordinates of the points making up the boundary, 
+% which can be plotted as a line. Note that each boundary defines a 
+% continuous ROI, if a ROI is made up of multiple non-continuous parts 
+% (i.e., the ROI is made up of multiple unconnected sections), there will 
+% be a boundary for each of those parts
 %
-% BOUNDARY_ROI = if 'midpoint' or 'centroid' is used, this will give
+% BOUNDARY_ROI_ID = if 'midpoint' or 'centroid' is used, this will give
 % indicate to which roi each boundary belongs (as indicated by the 
-% respective element in BOUNDARY e.g., BOUNDARY_ROI(1) = 1 means
-% BOUNDARY{1} defines a boundary for ROI 1, BOUNDARY_ROI(2) = 1 means
-% BOUNDARY{2} defines a boundary for ROI 1, BOUNDARY_ROI(3) = 2 means
-% BOUNDARY{3} defines a boundary for ROI 2 etc etc). BOUNDARY_ROI will be
-% empty if 'faces' is used for boundary_method
+% respective element in BOUNDARY e.g., BOUNDARY_ROI_ID(1) = 1 means
+% BOUNDARY{1} defines a boundary for ROI 1, BOUNDARY_ROI_ID(2) = 1 means
+% BOUNDARY{2} defines a boundary for ROI 1, BOUNDARY_ROI_ID(3) = 2 means
+% BOUNDARY{3} defines a boundary for ROI 2 etc etc). BOUNDARY_ROI_ID will 
+% be empty if 'faces' is used for boundary_method
+%
+% ROI_COMPONENTS = for each ROI, indicates how many componets make it up.
+% In other words, this indicates if there are multiple nonspatially
+% continuous parts to the ROI
 %
 % Stuart Oldham, Monash University, 2020
 % Thanks to the coronavirus for giving me the time to make this script
@@ -53,22 +58,10 @@ switch boundary_method
 
             faces_roi_ids = vertex_id(faces);
             
-            % Find the faces the exist entirely within a roi
-
-            Faces_same_roi = ~logical(diff(faces_roi_ids,2,2));
+            % Find the boundary faces 
+            BOUNDARY = logical(diff(faces_roi_ids,2,2));
             
-            % Define a matrix specifying the value of each face. By default
-            % it assume each face is on the boundary (done so with a value
-            % of -1)
-
-            BOUNDARY = true(size(faces,1),1);
-            
-            % For faces that exist entirely within a roi, assign them the
-            % id of the roi they reside in
-
-            BOUNDARY(Faces_same_roi) = 0;
-
-            BOUNDARY_ROI = [];
+            BOUNDARY_ROI_ID = [];
             
     case {'midpoint','centroid'}
     
@@ -160,14 +153,16 @@ switch boundary_method
     % boundaries. The code will iterative add in boundaries because of this
     
     nBounds = 1;
+    
+    ROI_COMPONENTS = zeros(nrois,1);
 
     for i = 1:nrois
         
-        % Find the boundary rois for a given roi
+        % Find the boundary edges for a given roi
         
         index = find(any(mult_edges_roi_id == roi_ids(i), 2));
         
-        % Get the face ids for the boundary rois for a given roi
+        % Get the face ids for the boundary edges for a given roi
 
         edge_roi_boundaryfaces = mult_edges_face_id(index,:);
 
@@ -200,7 +195,7 @@ switch boundary_method
         
         edgeID = [index; index];
         
-        % make an adjacency matrix where each connection defines a pair of
+        % Make an adjacency matrix where each connection defines a pair of
         % faces which are adjacent, and the connection weight is the
         % corresponding edge id that connects those two faces
 
@@ -213,11 +208,11 @@ switch boundary_method
         % Find the components of the adjacency matrix. Each component
         % represents a roi boundary
         
-        [comp,K(i)] = graphComponents(adj);
+        [comp,ROI_COMPONENTS(i)] = graphComponents(adj);
         
         % Loop over each roi
 
-        for j = 1:K(i)
+        for j = 1:ROI_COMPONENTS(i)
             
             % Find the "nodes" making up the component
 
@@ -395,7 +390,7 @@ switch boundary_method
             % We don't know before hand how many distinct ROI boundaries
             % there will be, so we update it as we go.
             
-            boundary_roi(nBounds) = i;
+            BOUNDARY_ROI_ID(nBounds) = i;
 
             nBounds = nBounds + 1;
 
@@ -431,7 +426,7 @@ switch boundary_method
 
                 BOUNDARY{nBounds} = [Boundary_coords; Boundary_coords(1,:)];
 
-                boundary_roi(nBounds) = i;
+                BOUNDARY_ROI_ID(nBounds) = i;
 
                 nBounds = nBounds + 1;   
 
@@ -440,6 +435,146 @@ switch boundary_method
         end
 
     end
+    
+    case 'edges'
+        
+            % Find the rois each face is connected to
+
+            faces_roi_ids = vertex_id(faces);
+            
+            % Find the faces that are boundary faces
+
+            bfaces = faces(logical(diff(faces_roi_ids,2,2)),:);
+            
+            % Find all possible combinations of edges that make up the
+            % boundaries of ROIs
+            BoundaryEdges = [[bfaces(:,1); bfaces(:,1); bfaces(:,2); bfaces(:,2); bfaces(:,3); bfaces(:,3)], ...
+                [bfaces(:,3); bfaces(:,2); bfaces(:,1); bfaces(:,3); bfaces(:,2); bfaces(:,1)]];
+
+            % Get the unique edges
+            
+            [EDGES_sorted] = sortrows(sort(BoundaryEdges,2));
+            
+            unique_boundary_edges = unique(EDGES_sorted,'rows');
+            
+            unique_boundary_edges_rois = vertex_id(unique_boundary_edges);
+            
+            % Get the number of unique ROIs
+            
+            roi_ids = unique(vertex_id);
+            nrois = length(roi_ids);
+            
+            ROI_COMPONENTS = zeros(nrois,1);
+            
+            nBounds = 1;
+            
+            % Loop over each ROI
+            
+            for i = 1:nrois
+                
+                % Find the edges that connected two vertices of the same
+                % ROI.
+                
+                index = sum(unique_boundary_edges_rois == roi_ids(i),2)==2;
+                
+                % Make an edge list of unique boundary edges for the
+                % desired ROI
+                
+                edgeList_half = unique_boundary_edges(index,:);
+                
+                edgeList_orig = [edgeList_half; fliplr(edgeList_half)];
+                
+                unique_verts = unique(edgeList_orig(:));
+                
+                % Get the number of vertices that make up the boundary.
+                
+                nverts = length(unique_verts);
+                
+                % To make the next bit easier, relabel the vertex ids in 
+                % edgeList_orig to be from 1:nverts
+                
+                new_vert_id = 1:nverts;
+                old_vert_id = unique_verts;
+                
+                edgeList = edgeList_orig;
+
+                for k = 1:numel(new_vert_id)
+                    edgeList(edgeList_orig == old_vert_id(k)) = new_vert_id(k);
+                end
+                
+                % Make a sparse adjacency matrix with the relabelled
+                % vertices. if you graph this it should be a ring. This
+                % ring indicates the order in which the vertices are
+                % connected to define the boundary of the ROI. Basically
+                % the nodes of this network represent vertices in the
+                % original surface mesh
+                                
+                adj = sparse(edgeList(:, 1), edgeList(:, 2), 1, nverts, nverts);
+                
+            % Find the components of the adjacency matrix. Each component
+            % represents a ROI boundary
+
+            [comp,ROI_COMPONENTS(i)] = graphComponents(adj);
+
+            % Loop over each component
+
+            for j = 1:ROI_COMPONENTS(i)
+
+                % Find the "nodes" making up the component
+
+                Nodes2Use = find(comp == j);
+
+                % Define a start "node"
+
+                N1 = Nodes2Use(1);
+
+                % Find the neighbours of the "node"
+
+                NodeNeighbors = find(adj( N1,:));
+
+                % Pick one of those neighbours to be the end "node"
+
+                N2 = NodeNeighbors(1);
+
+                % Find the connection linking the start and end "nodes". Once
+                % found,then remove it from the adjacency matrix 
+
+                adj(N1,N2) = 0;
+
+                adj(N2,N1) = 0;
+
+                % The boundary should be a cycle in the graph. If you remove
+                % one connection between "node" N1 and N2, if you find the 
+                % shortest path between N1 and N2, you get the ordering of
+                % vertices which define the boundary
+
+                G = graph(adj);
+
+                TR = shortestpathtree(G,N1,N2,'OutputForm','cell');
+
+                cycle = [TR{1} TR{1}(1)];
+
+                % Insert the original vertex IDs, then extract the coordinates
+                % of those IDs. This is the boundary of this component of
+                % the ROI
+
+                new_vert_id = 1:nverts;
+                old_vert_id = unique_verts;
+
+                boundary_verts = cycle;
+
+                for k = 1:numel(new_vert_id)
+                    boundary_verts(cycle == new_vert_id(k)) = old_vert_id(k);
+                end
+
+                BOUNDARY{nBounds} = vertices(boundary_verts,:);
+
+                BOUNDARY_ROI_ID(nBounds) = i;
+
+                nBounds = nBounds + 1;   
+            end
+                  
+            end
     
     otherwise
         error('Unrecognised ''boundary_method'' option')

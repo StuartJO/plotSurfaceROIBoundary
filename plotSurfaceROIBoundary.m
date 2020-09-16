@@ -17,13 +17,14 @@ function [p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plo
 % If you don't want any data to be displayed for a roi or vertex, set that
 % value to NaN.
 %
-% boundary_method = 'faces', 'midpoint', or 'centroid'. 'faces'
+% boundary_method = 'faces', 'midpoint', 'centroid', or 'edges'. 'faces'
 % will find the faces which exist between ROIs and those will be coloured
 % black to specify the boundary. 'midpoint' finds the edges that connected
-% the vertices of two different ROIs and takes the midpoint of the egde and
+% the vertices of two different ROIs and takes the midpoint of the edge and
 % uses those coordinates to define the boundary. 'centroid' finds the faces
 % which exist between ROIs and uses the centroid of those to draw the 
-% coordinates that define the boundary
+% coordinates that define the boundary. 'edges' finds the vertices which
+% define the boundary of the ROI and uses them for the coordinates
 %
 % cmap = an N*3 matrix specifying the RGB values making up the colormap to
 % use
@@ -56,12 +57,12 @@ function [p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plo
 %
 % BOUNDARY = the boundary of the rois. For 'faces' this will be a logical
 % where a value of 1 indicates that face is on the boundary between ROIs.
-% For 'midpoint'  or 'centroid', BOUNDARY will be a cell where each element
-% contains the coordinates of the points making up the boundary, which can
-% be plotted as a line. Note that each boundary defines a continuous ROIs,
-% if a ROI is made up of multiple non-continuous parts (i.e., the ROI is
-% made up of multiple unconnected sections), there will be a boundary for
-% each of those parts
+% For 'midpoint', 'centroid' or 'edges', BOUNDARY will be a cell where each 
+% element contains the coordinates of the points making up the boundary, 
+% which can be plotted as a line. Note that each boundary defines a 
+% continuous ROI, if a ROI is made up of multiple non-continuous parts 
+% (i.e., the ROI is made up of multiple unconnected sections), there will 
+% be a boundary for each of those parts
 %
 % new_climits = the new caxis limits for the data.
 %
@@ -98,7 +99,8 @@ switch boundary_method
 % work
     face_color_method = 'flat';
 
-    case {'midpoint','centroid'}
+    case {'midpoint','centroid','edges'}
+        
     colorFaceBoundaries = 0;
     
     if length(data) == length(vertex_id)
@@ -137,7 +139,7 @@ hold on
 % Draw the boundary if 'midpoint' or 'centroid' was used.
 
 switch boundary_method
-    case {'midpoint','centroid'}
+    case {'midpoint','centroid','edges'}
         for i = 1:length(BOUNDARY)
            boundary_plot.boundary(i) = plot3(BOUNDARY{i}(:,1), BOUNDARY{i}(:,2), BOUNDARY{i}(:,3), 'Color', 'k', 'LineWidth',linewidth,'Clipping','off');
         end
