@@ -26,13 +26,13 @@ function [BOUNDARY,BOUNDARY_ROI_ID,ROI_COMPONENTS] = findROIboundaries(vertices,
 % BOUNDARY = the boundary of the rois. For 'faces' this will be a logical
 % where a value of 1 indicates that face is on the boundary between ROIs.
 % For 'midpoint', 'centroid' or 'edges', BOUNDARY will be a cell where each 
-% element contains the coordinates of the points making up the boundary, 
+% element contains the coordinates of the points making up a boundary, 
 % which can be plotted as a line. Note that each boundary defines a 
 % continuous ROI, if a ROI is made up of multiple non-continuous parts 
 % (i.e., the ROI is made up of multiple unconnected sections), there will 
 % be a boundary for each of those parts
 %
-% BOUNDARY_ROI_ID = if 'midpoint' or 'centroid' is used, this will give
+% BOUNDARY_ROI_ID = if 'midpoint' or 'centroid' is used, this will
 % indicate to which roi each boundary belongs (as indicated by the 
 % respective element in BOUNDARY e.g., BOUNDARY_ROI_ID(1) = 1 means
 % BOUNDARY{1} defines a boundary for ROI 1, BOUNDARY_ROI_ID(2) = 1 means
@@ -42,7 +42,8 @@ function [BOUNDARY,BOUNDARY_ROI_ID,ROI_COMPONENTS] = findROIboundaries(vertices,
 %
 % ROI_COMPONENTS = for each ROI, indicates how many componets make it up.
 % In other words, this indicates if there are multiple nonspatially
-% continuous parts to the ROI
+% continuous parts to the ROI. This will only work if 'faces' is not 
+% used
 %
 % Stuart Oldham, Monash University, 2020
 % Thanks to the coronavirus for giving me the time to make this script
@@ -62,6 +63,8 @@ switch boundary_method
             BOUNDARY = logical(diff(faces_roi_ids,2,2));
             
             BOUNDARY_ROI_ID = [];
+            
+            ROI_COMPONENTS = [];
             
     case {'midpoint','centroid'}
     
@@ -150,7 +153,7 @@ switch boundary_method
     nrois = length(roi_ids);
 
     % Potentially a roi is not spatially contiguous, so will have multiple 
-    % boundaries. The code will iterative add in boundaries because of this
+    % boundaries. The code will iteratively add in boundaries because of this
     
     nBounds = 1;
     
@@ -202,15 +205,15 @@ switch boundary_method
         adj = sparse(edgeList(:, 1), edgeList(:, 2), edgeID, nfaces, nfaces);
 
         % The boundary of a ROI should form a circle. If for some reason the 
-        % roi is not spatially contiguous, each of the subrois should form a 
+        % roi is not spatially continuous, each of the subrois should form a 
         % cycle. If not something is very wrong with your parcellation
 
         % Find the components of the adjacency matrix. Each component
-        % represents a roi boundary
+        % represents a spatially continuous area for the current roi
         
         [comp,ROI_COMPONENTS(i)] = graphComponents(adj);
         
-        % Loop over each roi
+        % Loop over each roi component (i.e., the 
 
         for j = 1:ROI_COMPONENTS(i)
             
@@ -264,7 +267,7 @@ switch boundary_method
     % boundary. However if done this way, where three rois meet the
     % boundaries of those rois will not intersect. This bothered me. So I
     % wrote more code to get around this you can see below. If this does
-    % not bother you, you mad man, you can just uncomment the code below
+    % not bother you, you mad person, you can just uncomment the code below
     % and comment out the rest of the code up until the next case statement
 
     %         Boundary_verts = mult_edges_vert_id(EdgeINDS,:);
@@ -448,10 +451,11 @@ switch boundary_method
             
             % Find all possible combinations of edges that make up the
             % boundaries of ROIs
+            
             BoundaryEdges = [[bfaces(:,1); bfaces(:,1); bfaces(:,2); bfaces(:,2); bfaces(:,3); bfaces(:,3)], ...
                 [bfaces(:,3); bfaces(:,2); bfaces(:,1); bfaces(:,3); bfaces(:,2); bfaces(:,1)]];
 
-            % Get the unique edges
+            % Get the unique edges making up the boundary of each roi
             
             [EDGES_sorted] = sortrows(sort(BoundaryEdges,2));
             
@@ -512,7 +516,7 @@ switch boundary_method
                 adj = sparse(edgeList(:, 1), edgeList(:, 2), 1, nverts, nverts);
                 
             % Find the components of the adjacency matrix. Each component
-            % represents a ROI boundary
+            % represents a spatially continuous area for the current roi
 
             [comp,ROI_COMPONENTS(i)] = graphComponents(adj);
 
