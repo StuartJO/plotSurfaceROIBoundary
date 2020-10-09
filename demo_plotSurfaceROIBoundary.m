@@ -58,7 +58,7 @@ axis tight
 axis equal
 
 
-%% Demonstrate different types of plots
+% Demonstrate different types of plots
 
 surface.vertices = lh_inflated_verts;
 boundary_type = {'faces','midpoint','centroid','edges','faces','midpoint','centroid','edges'};
