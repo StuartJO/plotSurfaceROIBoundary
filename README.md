@@ -2,7 +2,7 @@
 
 <img src="./figures/SurfaceBoundaryPlotsExample.png" width="100%">
 
-These scripts will plot the boundaries of a ROI on a surface. Additionally code is provided so that certain regions can be excluded from the colourmap
+These scripts will plot the boundaries of a ROI on a surface. Additionally code is provided so that certain regions can be excluded from the colourmap.
 
 There are four ways of defining a boundary here, 'faces', 'midpoint', 'centroid', and 'edges'.
 
@@ -19,6 +19,8 @@ demo_plotSurfaceROIBoundary.m shows examples of how the code is used. See plotSu
 See makeFaceVertexCData.m for how to configure a colormap to exclude certain regions (e.g., regions which have no ROI information)
 
 example_surface_data.mat includes vertices and faces for fsaverage, along with parcellations for the Desikan-Killiany atlas, HCPMMP1 parcellation, and a random 200 (100 ROIs per hemisphere) parcellation.
+
+# Plotting boundaries
 
 The first four figures show the different types of boundary method projected over the surface where each face is coloured according to the vertex ROI IDs. While a face can be connected to multiple ROIs, each face is colored by the value of the first vertex that constitutes that face (in other words, when plotting each face appears to only be assigned to one ROI when it infact belongs to multiple). This is why for 'midpoint', 'centroid', and 'edges' the boundary drawn doesn't exactly follow the face colours. Anatomically based parcellations (like the Desikan-Killiany and HCPMMP1 parcellations) tend to produce jagged boundaries in my experience. All these figures can be replicated using demo_plotSurfaceROIBoundary.m
 
