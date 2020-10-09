@@ -15,7 +15,9 @@ ax1 = axes('Position',[0.01 0 .3 1]);
 plotSurfaceROIBoundary(surface,lh_rand200,1:100,'faces',jet(100),1,2);
 
 % The following options set up the patch object to look pretty. This works
-% well for the left hemisphere (medial and lateral), not sure about the right
+% well for the left hemisphere (medial and lateral). Change the inputs to 
+% 'view' to see the brain from different angles ([-90 0] for left and [90 0]
+% for right I find works well)
 
 camlight(80,-10);
 camlight(-80,-10);
@@ -57,7 +59,6 @@ axis off
 axis tight
 axis equal
 
-
 % Demonstrate different types of plots
 
 surface.vertices = lh_inflated_verts;
@@ -69,33 +70,33 @@ for i = 1:8
 
 figure
     
-% The data here is just each ROIs own ID number
+    % The data here is just each ROIs own ID number
 
-    if i < 5
-        data = 1:100;
-        cmap = lines(34);
-    else
-        data = lh_sulc;
-        cmap = parula(100);
-    end
+        if i < 5
+            data = 1:100;
+            cmap = lines(34);
+        else
+            data = lh_sulc;
+            cmap = parula(100);
+        end
     
-[p,~,~,~,~,orig_data_limits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
-    
-camlight(80,-10);
-camlight(-80,-10);
+    [p,~,~,~,~,orig_data_limits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
 
-view([-90 0])
+    camlight(80,-10);
+    camlight(-80,-10);
 
-axis off
-axis tight
-axis equal
+    view([-90 0])
 
-% This just zooms into the area of interest    
-ylim([-25.2699   -8.7600])
-zlim([20.2174   31.3705])
+    axis off
+    axis tight
+    axis equal
 
-p.EdgeColor = 'k';
-p.EdgeAlpha = .5;
+    % This just zooms into the area of interest    
+    ylim([-25.2699   -8.7600])
+    zlim([20.2174   31.3705])
+
+    p.EdgeColor = 'k';
+    p.EdgeAlpha = .5;
 
 end
 
