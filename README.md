@@ -4,11 +4,11 @@
 
 These scripts will plot the boundaries of a ROI on a surface. Additionally code is provided so that certain regions can be excluded from the colourmap.
 
-There are four ways of defining a boundary here, 'faces', 'midpoint', 'centroid', and 'edges'.
+There are four ways of defining a boundary here (I know right? Overkill!!), 'faces', 'midpoint', 'centroid', and 'edges'.
 
 'faces' will find the faces which exist between ROIs and those will be coloured black to specify the boundary. 
 
-'midpoint' finds the edges that connect the vertices of two different ROIs and takes the midpoint of the egde and uses those coordinates to define the boundary. 
+'midpoint' finds the edges that connect the vertices of two different ROIs and takes the midpoint of the edge and uses those coordinates to define the boundary. 
 
 'centroid' finds the faces which exist between ROIs and uses the centroid of those to draw the coordinates that define the boundary. 
 
