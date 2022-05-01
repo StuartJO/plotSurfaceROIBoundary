@@ -30,42 +30,42 @@ The first five figures show the different types of boundary method projected ove
 
 'faces'
 
-<img src="./figures/ROIS_faces_flat.png" width="50%">
+<img src="./figures/ROIS_faces_flat.png" width="75%">
 
 'midpoint'
 
-<img src="./figures/ROIS_midpoint_flat.png" width="50%">
+<img src="./figures/ROIS_midpoint_flat.png" width="75%">
 
 'centroid'
 
-<img src="./figures/ROIS_centroid_flat.png" width="50%">
+<img src="./figures/ROIS_centroid_flat.png" width="75%">
 
 'edge_vertices'
 
-<img src="./figures/ROIS_edge_vertices_flat.png" width="50%">
+<img src="./figures/ROIS_edge_vertices_flat.png" width="75%">
 
 'edge_faces'
 
-<img src="./figures/ROIS_edge_faces_flat.png" width="50%">
+<img src="./figures/ROIS_edge_faces_flat.png" width="75%">
 
 The next five figures show the different types of boundary method projected over the surface where each face is coloured according to an interpolated value of the vertex values (which in this case is the sulcal depth of each vertex).
 
 'faces'
 
-<img src="./figures/sulc_faces_flat.png" width="50%">
+<img src="./figures/sulc_faces_flat.png" width="75%">
 
 'midpoint'
 
-<img src="./figures/sulc_midpoint_interp.png" width="50%">
+<img src="./figures/sulc_midpoint_interp.png" width="75%">
 
 'centroid'
 
-<img src="./figures/sulc_centroid_interp.png" width="50%">
+<img src="./figures/sulc_centroid_interp.png" width="75%">
 
 'edge_vertices'
 
-<img src="./figures/sulc_edge_vertices_interp.png" width="50%">
+<img src="./figures/sulc_edge_vertices_interp.png" width="75%">
 
 'edge_faces'
 
-<img src="./figures/sulc_edge_faces_interp.png" width="50%">
+<img src="./figures/sulc_edge_faces_interp.png" width="75%">
