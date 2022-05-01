@@ -17,14 +17,16 @@ function [p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plo
 % If you don't want any data to be displayed for a roi or vertex, set that
 % value to NaN.
 %
-% boundary_method = 'faces', 'midpoint', 'centroid', or 'edges'. 'faces'
-% will find the faces which exist between ROIs and those will be coloured
-% black to specify the boundary. 'midpoint' finds the edges that connected
-% the vertices of two different ROIs and takes the midpoint of the edge and
-% uses those coordinates to define the boundary. 'centroid' finds the faces
-% which exist between ROIs and uses the centroid of those to draw the 
-% coordinates that define the boundary. 'edges' finds the vertices which
-% define the boundary of the ROI and uses them for the coordinates
+% boundary_method = 'faces', 'midpoint', 'centroid', 'edge_vertices', or 
+% 'edge_faces'. 'faces' will find the faces which exist between ROIs and
+% those will be coloured black to specify the boundary. 'midpoint' finds 
+% the edges that connect the vertices of two different ROIs and takes the
+% midpoint of the edge and uses those coordinates to define the boundary. 
+% 'centroid' finds the faces which exist between ROIs and uses the centroid
+% of those to draw the coordinates that define the boundary. 
+% 'edge_vertices' finds the vertices which define the boundary of the ROI 
+% and uses them for the coordinates. 'edge_faces' finds the edges along
+% faces which make up the boundary and uses them for the coordinates
 %
 % cmap = an N*3 matrix specifying the RGB values making up the colormap to
 % use
@@ -88,7 +90,12 @@ vertices = surface.vertices;
 faces = surface.faces;
 
 % Find the boundaries of the ROIs
+switch boundary_method
+    case 'none'
+BOUNDARY = [];        
+    case {'midpoint','centroid','edge_vertices','faces','edge_faces'}
 BOUNDARY = findROIboundaries(vertices,faces,vertex_id,boundary_method);
+end
 
 % Set up some options. 
 switch boundary_method
@@ -99,7 +106,7 @@ switch boundary_method
 % work
     face_color_method = 'flat';
 
-    case {'midpoint','centroid','edges'}
+    case {'midpoint','centroid','edge_vertices','edge_faces'}
         
     colorFaceBoundaries = 0;
     
@@ -114,6 +121,9 @@ switch boundary_method
         face_color_method = 'flat';
         colorUnknownGrey = 1;
     end
+    case 'none'
+       colorFaceBoundaries = 0; 
+       face_color_method = 'interp';
     otherwise
         error('Unrecognised ''boundary_method'' option')
 end
@@ -132,14 +142,14 @@ current_axes = gca;
 colormap(current_axes,new_cmap)
 
 % Apply the new color map limits
-caxis(new_climits)
+caxis(new_climits);
 
 hold on
 
 % Draw the boundary if 'midpoint' or 'centroid' was used.
 
 switch boundary_method
-    case {'midpoint','centroid','edges'}
+    case {'midpoint','centroid','edge_vertices','edge_faces'}
         for i = 1:length(BOUNDARY)
            boundary_plot.boundary(i) = plot3(BOUNDARY{i}(:,1), BOUNDARY{i}(:,2), BOUNDARY{i}(:,3), 'Color', 'k', 'LineWidth',linewidth,'Clipping','off');
         end

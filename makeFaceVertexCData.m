@@ -66,7 +66,13 @@ if nargin < 8
     climits = [nanmin(data) nanmax(data)];
 end
 
-if length(data) ~= length(unique(vertex_id))-1 && length(data) ~= length(vertex_id)
+if sum(vertex_id==0)>0
+    vert0present = 1;
+else
+    vert0present = 0;
+end
+
+if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
     error('data needs to either contain one value per roi, or contain a value for each vertex')
 end
 
@@ -76,7 +82,6 @@ end
 if size(data,1) > size(data,2)
     data = data';
 end
-
 
 cmax = nanmax(climits);
 cmin = nanmin(climits);

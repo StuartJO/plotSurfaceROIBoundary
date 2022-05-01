@@ -12,14 +12,16 @@ function [BOUNDARY,BOUNDARY_ROI_ID,ROI_COMPONENTS] = findROIboundaries(vertices,
 %
 % vertex_id = the roi id of each vertex
 %
-% boundary_method = 'faces', 'midpoint', 'centroid', or 'edges'. 'faces'
-% will find the faces which exist between ROIs and those will be coloured
-% black to specify the boundary. 'midpoint' finds the edges that connected
-% the vertices of two different ROIs and takes the midpoint of the edge and
-% uses those coordinates to define the boundary. 'centroid' finds the faces
-% which exist between ROIs and uses the centroid of those to draw the 
-% coordinates that define the boundary. 'edges' finds the vertices which
-% define the boundary of the ROI and uses them for the coordinates
+% boundary_method = 'faces', 'midpoint', 'centroid', 'edge_vertices', or 
+% 'edge_faces'. 'faces' will find the faces which exist between ROIs and
+% those will be coloured black to specify the boundary. 'midpoint' finds 
+% the edges that connect the vertices of two different ROIs and takes the
+% midpoint of the edge and uses those coordinates to define the boundary. 
+% 'centroid' finds the faces which exist between ROIs and uses the centroid
+% of those to draw the coordinates that define the boundary. 
+% 'edge_vertices' finds the vertices which define the boundary of the ROI 
+% and uses them for the coordinates. 'edge_faces' finds the edges along
+% faces which make up the boundary and uses them for the coordinates
 %
 % Outputs:
 %
@@ -213,16 +215,16 @@ switch boundary_method
         
         [comp,ROI_COMPONENTS(i)] = graphComponents(adj);
         
-        % Loop over each roi component (i.e., the 
+        % Loop over each roi component (i.e., each boundary for a roi) 
 
+        NodesWithDeg2 = sum(full(adj)>0)==2;
+        
         for j = 1:ROI_COMPONENTS(i)
             
             % Find the "nodes" making up the component
 
-            Nodes2Use = find(comp == j);
+            Nodes2Use = find((comp == j).*NodesWithDeg2);
             
-            % Define a start "node"
-
             N1 = Nodes2Use(1);
             
             % Find the neighbours of the "node"
@@ -267,17 +269,21 @@ switch boundary_method
     % boundary. However if done this way, where three rois meet the
     % boundaries of those rois will not intersect. This bothered me. So I
     % wrote more code to get around this you can see below. If this does
-    % not bother you, you mad person, you can just uncomment the code below
-    % and comment out the rest of the code up until the next case statement
+    % not bother you, you mad person, you can just set DoSimple to 1
 
-    %         Boundary_verts = mult_edges_vert_id(EdgeINDS,:);
-    %                 
-    %         midpoints = (vertices(Boundary_verts(:, 1), :) + vertices(Boundary_verts(:, 2), :))./2;
-    %                         
-    %         BOUNDARY{nBounds} = [midpoints; midpoints(1,:)];
-    %     
-    %         nBounds = nBounds + 1;
+            DoSimple = 0;
+            
+            if DoSimple
     
+            Boundary_verts = mult_edges_vert_id(EdgeINDS,:);
+                    
+            midpoints = (vertices(Boundary_verts(:, 1), :) + vertices(Boundary_verts(:, 2), :))./2;
+                            
+            BOUNDARY{nBounds} = [midpoints; midpoints(1,:)];
+        
+            nBounds = nBounds + 1;
+    
+            else
             % For the rois boundary edges, get the number of rois the
             % corresponding faces are connected to
 
@@ -288,7 +294,7 @@ switch boundary_method
 
             boundary_corner_points = find(max(Boundary_verts_nrois,[],2)==3);
 
-            % Check the there are corners for this boundary
+            % Check there are corners for this boundary
 
             if ~isempty(boundary_corner_points)
 
@@ -344,9 +350,15 @@ switch boundary_method
 
                 corner_coords = (vertices(boundary_corner_faces_verts(:, 3), :) + vertices(boundary_corner_faces_verts(:, 2), :) + vertices(boundary_corner_faces_verts(:, 1), :))./3;
 
-                corner_coords2use_ind = 1:2:length(boundary_corner_points);
+                % Multiple corner faces may be adjacent. This detects which
+                % are adjacent, selects the appropriate coordinates to use
+                % and the appropriate spot to place them in. This assumes
+                % for a pair of adjacent corners, you take the coordinates
+                % of the second of the pair but use the first to get the
+                % point to insert the coordinate
+                corner_coords2use_ind = find(diff(boundary_corner_points)==1);
 
-                corner_coords2use = corner_coords(corner_coords2use_ind,:);
+                corner_coords2use = corner_coords(corner_coords2use_ind+1,:);
 
                 corner_coords_insert = boundary_corner_points(corner_coords2use_ind);
 
@@ -396,6 +408,8 @@ switch boundary_method
             BOUNDARY_ROI_ID(nBounds) = i;
 
             nBounds = nBounds + 1;
+            
+            end
 
             case 'centroid'
                 
@@ -439,7 +453,7 @@ switch boundary_method
 
     end
     
-    case 'edges'
+    case 'edge_vertices'
         
             % Find the rois each face is connected to
 
@@ -520,16 +534,21 @@ switch boundary_method
 
             [comp,ROI_COMPONENTS(i)] = graphComponents(adj);
 
+            % For the next part to work correctly we need to select a node
+            % with a degree of two.
+            
+            NodesWithDeg2 = sum(full(adj))==2;
+            
             % Loop over each component
 
             for j = 1:ROI_COMPONENTS(i)
 
                 % Find the "nodes" making up the component
 
-                Nodes2Use = find(comp == j);
+                Nodes2Use = find((comp == j).*NodesWithDeg2);
 
                 % Define a start "node"
-
+                
                 N1 = Nodes2Use(1);
 
                 % Find the neighbours of the "node"
@@ -555,7 +574,7 @@ switch boundary_method
                 G = graph(adj);
 
                 TR = shortestpathtree(G,N1,N2,'OutputForm','cell');
-
+                %save('error.mat')
                 cycle = [TR{1} TR{1}(1)];
 
                 % Insert the original vertex IDs, then extract the coordinates
@@ -579,7 +598,403 @@ switch boundary_method
             end
                   
             end
-    
+
+            case 'edge_faces'
+            % Honestly this is so janky if it gives weird results use
+            % any of the other options
+                
+        
+            % Find the rois each face is connected to
+
+            faces_roi_ids = vertex_id(faces);
+            
+            % Get the colouring (i.e., the ROI id) of the face. MATLAB
+            % colours faces according to the value of the vertex in the
+            % first column.
+            
+            face_roi_id = faces_roi_ids(:,1);
+            
+            % Get all possible edges
+            
+            Edges = [[faces(:,1); faces(:,1); faces(:,2); faces(:,2); faces(:,3); faces(:,3)], ...
+                [faces(:,3); faces(:,2); faces(:,1); faces(:,3); faces(:,2); faces(:,1)]];
+            
+            % Get the colour for each edge (an edge is assigned the colour
+            % of the face it is assigned to, each edge therefore has two
+            % colours)
+            EdgesColor = repmat(face_roi_id,6,1);
+            
+            % Get the number of faces
+            Nfaces = size(faces,1);
+            
+            % Make an index to find which edge corresponds to each face)
+            EdgeFaceID = repmat((1:Nfaces)',6,1);
+            
+            % Sort the edge vertices from low to high, allows unqiue edges
+            % to be found
+            [EDGES_sorted,EDGES_sorted_ind] = sortrows(sort(Edges,2));
+            
+            clear Edges
+            
+            % Make a matrix where the first two colums are the IDs of the
+            % vertices making up that edge, the third is is colour (i.e.,
+            % ROI) of that edge, and the fourth is which face that edge
+            % belongs to
+            Edges_colour_faceID = [EDGES_sorted EdgesColor(EDGES_sorted_ind,:) EdgeFaceID(EDGES_sorted_ind,:)];
+            
+            % Clean up some large matrices/arrays
+            clear EDGES_sorted EdgesColor EdgeFaceID
+            
+            % Get the unique data for each edge. Each edge is assigned to 
+            % two faces so will appear twice in this list
+            EDGES_unique = unique(Edges_colour_faceID,'rows');
+            
+            % Because EDGES_unique is sorted such that each the data for
+            % each edge is pair, we can split 
+            EDGES_unique_faceID1 = EDGES_unique(1:2:end,:);
+            EDGES_unique_faceID2 = EDGES_unique(2:2:end,:);
+            
+            % Extract all of the edges data into one matrix. The first two
+            % columns are the IDs of the vertices making up that edge, the 
+            % third is if the two faces that edge belongs to have a  
+            % different colour, the fourth and fifth are the index of the
+            % faces that edge belongs to
+            EDGES_unique_sameColor_faceID = [EDGES_unique_faceID1(:,1:2) double((EDGES_unique_faceID1(:,3)-EDGES_unique_faceID2(:,3))~=0) EDGES_unique_faceID1(:,4) EDGES_unique_faceID2(:,4)];
+
+            % edges which belong to faces with different colours must be on
+            % the boundary, extract only those
+            boundary_edges_ind = EDGES_unique_sameColor_faceID(:,3)==1;
+            
+            % This is the same as EDGES_unique_sameColor_faceID but for
+            % boundary edges only
+            BOUNDARY_EDGES_unique_sameColor_faceID = EDGES_unique_sameColor_faceID(boundary_edges_ind,:);         
+
+            % Clear up more large matrices/arrays that are no longer
+            % needed
+            clear EDGES_unique_sameColor_faceID EDGES_unique_faceID1 EDGES_unique_faceID2 EDGES_unique
+            
+            BOUNDARY_EDGES_unique_ROIS = face_roi_id(BOUNDARY_EDGES_unique_sameColor_faceID(:,4:5));
+
+            % Get the number of unique ROIs
+            roi_ids = unique(vertex_id);
+            nrois = length(roi_ids);
+            
+            ROI_COMPONENTS = zeros(nrois,1);
+            
+            nBounds = 1;
+            
+            % Loop over each ROI
+            
+            for i = 1:nrois
+                
+                % Find the edges that connected two vertices of the same
+                % ROI.
+                
+                roiID = roi_ids(i);
+                
+                index = sum(BOUNDARY_EDGES_unique_ROIS == roiID,2)>=1;
+                
+                % Make an edge list of unique boundary edges for the
+                % desired ROI
+                
+                edgeList_half = BOUNDARY_EDGES_unique_sameColor_faceID(index,1:2);
+                
+                edgeList_orig = [edgeList_half; fliplr(edgeList_half)];
+                
+                unique_verts = unique(edgeList_orig(:));
+                
+                % Get the number of vertices that make up the boundary.
+                
+                nverts = length(unique_verts);
+                
+                % To make the next bit easier, relabel the vertex ids in 
+                % edgeList_orig to be from 1:nverts
+                
+                new_vert_id = 1:nverts;
+                old_vert_id = unique_verts;
+                
+                vert_new2old = [(1:nverts)' unique_verts];
+                
+                edgeList = edgeList_orig;
+
+                for k = 1:numel(new_vert_id)
+                    edgeList(edgeList_orig == old_vert_id(k)) = new_vert_id(k);
+                end
+                
+                % Make a sparse adjacency matrix with the relabelled
+                % vertices. if you graph this it should be a ring. This
+                % ring indicates the order in which the vertices are
+                % connected to define the boundary of the ROI. Basically
+                % the nodes of this network represent vertices in the
+                % original surface mesh
+                                
+                adj = sparse(edgeList(:, 1), edgeList(:, 2), 1, nverts, nverts);
+                                
+            % Find the components of the adjacency matrix. Each component
+            % represents a spatially continuous area for the current roi
+
+            [comp,ROI_COMPONENTS(i)] = graphComponents(adj);
+
+            % For the next part to work correctly we need to select a node
+            % with a degree of two.
+            
+            NodesWithDeg2 = sum(full(adj))==2;
+            
+            % Loop over each component
+
+            for j = 1:ROI_COMPONENTS(i)
+
+                % Find the "nodes" making up the component. Nodes in this
+                % case are the vertices of the surface
+                NodesInComp = find(comp == j);
+                Nodes2Use = find((comp == j).*NodesWithDeg2);
+                                    
+                % Define a start "node"
+                
+                N1 = Nodes2Use(1);
+
+                % Find the neighbours of the "node"
+
+                NodeNeighbors = find(adj( N1,:));
+
+                % Pick one of those neighbours to be the end "node"
+
+                N2 = NodeNeighbors(1);
+
+                % Find the connection linking the start and end "nodes". Once
+                % found,then remove it from the adjacency matrix 
+
+                adj(N1,N2) = 0;
+
+                adj(N2,N1) = 0;
+
+                % The boundary should be a cycle in the graph. If you remove
+                % one connection between "node" N1 and N2, if you find the 
+                % shortest path between N1 and N2, you get the ordering of
+                % vertices which define the boundary
+
+                G = graph(adj);
+
+                TR = shortestpathtree(G,N1,N2,'OutputForm','cell');
+                attempts = 0;
+                
+                % Remember when I said it gets janky? So it begins....
+                
+                % Because the boundary when definied by faces can be so
+                % irregular, it throws up all kinds of problems with
+                % finding a path the connects all the edges which define
+                % said boundary (this is actually a somewhat constrained 
+                % version of the Chinese Postman Problem. Here is my best
+                % attempt
+                
+                % First check if all the "nodes" are part of the path, if 
+                % not try some maths n' stuff 
+                while min(ismember(NodesInComp,TR{1})) == 0
+                    
+                    % lets try again
+                    adjFULL = full(adj);
+                    
+                    % First we need to find any nodes which have a "cycle"
+                    % attached to them. A cycle in this case refers to a
+                    % sub-group of nodes which are connected (typically in
+                    % a loop) to an origin node. Because they form a loop,
+                    % when finding the shortest path as per above, all the
+                    % nodes in the cycle are not found. A node has a cycle
+                    % attached to it if it has a degree > 2
+                    NodesWithCycles = find(sum(adjFULL)>=3);
+                    
+                    % To make matters more complicated, if two nodes which
+                    % have cycles are themselves connected, oh boy it gets
+                    % fun
+                    CheckNodesWithCyclesConnected = adjFULL(NodesWithCycles,NodesWithCycles);
+                    
+                    % Check if nodes with cycles are connected
+                    if max(CheckNodesWithCyclesConnected(:))~=0
+                        % Nodes with cycles are connected. Yayyyyy.....
+                        
+                        % find the nodes with cycles that are connected 
+                        [Ci,Cj] = ind2sub(size(CheckNodesWithCyclesConnected),find(triu(CheckNodesWithCyclesConnected)==1));
+                    
+                        % Loop over the pairs of nodes that are connected
+                        for x = 1:length(Ci)
+                            
+                            % Get the node ID of the connected pair
+                            Chki = NodesWithCycles(Ci(x));
+                            Chkj = NodesWithCycles(Cj(x));
+                            
+                            % Get the original vertex ids
+                            Chk_orig_vert = [vert_new2old(Chki,2) vert_new2old(Chkj,2)];
+                            
+                            % Find the faces these belong to.
+                            Chk_faces = BOUNDARY_EDGES_unique_sameColor_faceID((sum(ismember(BOUNDARY_EDGES_unique_sameColor_faceID(:,1:2),Chk_orig_vert),2)==2),4:5);      
+                            
+                            % Find the ROI ID of those faces
+                            Chk_faces_ROI = face_roi_id(Chk_faces);
+                            
+                            % We only want the face whose ROI ID
+                            % corresponds to the ROI we are currently
+                            % drawing the boundary of
+                            FACE2Fix = Chk_faces((Chk_faces_ROI==roiID));
+                            
+                            % Get the vertices which make up the face
+                            FACE2Fix_verts = faces(FACE2Fix,:);
+                            
+                            % Map from the original vertex IDs to the node
+                            % IDs being used here
+                            Verts2Fix = find(ismember(vert_new2old(:,2),FACE2Fix_verts));
+                            
+                            % Because this algorithm is iterative and works
+                            % by adding new nodes and assigning the
+                            % original vertex IDs, to prevent anything
+                            % becoming overly messed up, only use
+                            % node/vertex IDs that were defined originally
+                            Verts2Fix=Verts2Fix((Verts2Fix<=nverts));
+                            
+                            % We now have found the node which connects the
+                            % two nodes which form cycles. Chki,Chkj and 
+                            % Chkk form a fully connected triad
+                            Chkk = Verts2Fix(~ismember(Verts2Fix,[Chki Chkj]));
+                            
+                            % Get the new nodes ID
+                            NewNode = length(adjFULL)+1;
+                            
+                            % Disconnect one of the two cycle node from the
+                            % triad
+                            adjFULL(Chki,Chkj) = 0;
+                            adjFULL(Chkj,Chki) = 0;
+                            adjFULL(Chkk,Chkj) = 0;
+                            adjFULL(Chkj,Chkk) = 0;
+                            
+                            % Reconnect the remaining nodes in the triad to
+                            % a new node. This means the loop is now
+                            % broken, and all nodes should be connected by
+                            % a single path. This new node will correspond
+                            % to the one we just disconnected above
+                            adjFULL(NewNode,Chki) = 1;
+                            adjFULL(Chki,NewNode) = 1;
+                            adjFULL(NewNode,Chkk) = 1;
+                            adjFULL(Chkk,NewNode) = 1;
+                                   
+                            adj = sparse(adjFULL);
+                            
+                            % Sometimes, the two nodes with cycles are
+                            % connected such that doing the above will
+                            % result in one cycle becoming completely
+                            % disconnected from the network. It will never
+                            % be found on the path, the poor thing. We can
+                            % fix this however.
+                            [~,ChkCOmps] = graphComponents(adj);   
+                            if ChkCOmps~=1
+                                
+                            % Disconnected the newly formed node from Chkk,
+                            % reconnedt Chkk and Chkj, and connect the
+                            % newly formed node to Chkj. The cycle should
+                            % now be broken and the graph is fully
+                            % connected once again
+                            adjFULL(NewNode,Chkj) = 1;
+                            adjFULL(Chkj,NewNode) = 1;                                
+                            adjFULL(NewNode,Chkk) = 0;
+                            adjFULL(Chkk,NewNode) = 0;    
+                            adjFULL(Chkk,Chkj) = 1;
+                            adjFULL(Chkj,Chkk) = 1;    
+                              
+                            end
+                            
+                            % For the newly formed node, give it the vertex id 
+                            % of the original node it corresponds to
+                            vert_new2old(NewNode,:) = [NewNode vert_new2old(Chkj,2)];                            
+                        end
+                        
+                    else
+                    
+                        % Find nodes which form cycles but aren't connected
+                        % to other nodes which form cycles (these should
+                        % have been delt with above)
+                    for NodeWithCycleIND = 1:length(NodesWithCycles)
+                        
+                        % Get the ID of the node with a cycle
+                        CycleNodeID = NodesWithCycles(NodeWithCycleIND);
+                        
+                        % Find the neighours of the node (i.e., the nodes
+                        % it is connected to)
+                    CycleNodeIDNeighbors = find(adj( CycleNodeID,:));
+                    
+                        % The nodes in the cycle should not have been found
+                        % on the shortest path originally defined, so we
+                        % can use this information to extract just those
+                        % nodes
+                    CycleNodeIDNeighborsCycleIn = ismember(CycleNodeIDNeighbors,TR{1});
+                    
+                        % If somehow the shortestpath already has explored
+                        % the cycle, great! We don't need to worry.
+                        % Otherwise we do the following:
+                    if max(CycleNodeIDNeighborsCycleIn) == 1
+                        % Find the neighbour nodes in the cycle
+                        NeighborsInCycle = CycleNodeIDNeighbors(CycleNodeIDNeighborsCycleIn==1);
+                        % Find those outside the cycle
+                        NeighborsOutCycle = CycleNodeIDNeighbors(CycleNodeIDNeighborsCycleIn==0);
+                        % Make our new node which will correspond to the
+                        % original node which is the origin of the cycle
+                        NewNode = length(adjFULL)+1;
+                        
+                        % Disconnect one of the neighbour cycle nodes from
+                        % the cycle node, also disconnect one of the
+                        % non-cycle neighbour nodes as well
+                        adjFULL(CycleNodeID,NeighborsInCycle(1)) = 0;
+                        adjFULL(NeighborsInCycle(1),CycleNodeID) = 0;
+                        adjFULL(CycleNodeID,NeighborsOutCycle(1)) = 0;
+                        adjFULL(NeighborsOutCycle(1),CycleNodeID) = 0;
+                        % Reconnect those two disconnected nodes to the new
+                        % node, the cycle is now broken (hopefully)!!
+                        adjFULL(NewNode,NeighborsInCycle(1)) = 1;
+                        adjFULL(NeighborsInCycle(1),NewNode) = 1;
+                        adjFULL(NewNode,NeighborsOutCycle(1)) = 1;
+                        adjFULL(NeighborsOutCycle(1),NewNode) = 1;         
+                        
+                        % For the newly formed node, give it the vertex id 
+                        % of the original node it corresponds to
+                        vert_new2old(NewNode,:) = [NewNode vert_new2old(CycleNodeID,2)];
+                    end
+                    end
+                    
+                    end
+                    
+                    % Recompute the shortest path
+                    adj = sparse(adjFULL);
+                    
+                    G = graph(adj);
+
+                    TR = shortestpathtree(G,N1,N2,'OutputForm','cell');
+                    
+                    % I can't promise to account for all the weird kinds of
+                    % ways the boundary can be definied/connected under
+                    % this approach. The following should catch any
+                    % instances where things are so weird I cannot resolve
+                    % it so it will just spit out its best effort.
+                    attempts = attempts + 1;
+                    if attempts >= 10
+                        warning(['The boundary for ROI ',num2str(roiID),' has defeated my algorithm. Shame shame shame. The boundary is likely too complex in shape! Giving up and just using the final solution found'])
+                        break
+                    end
+                end
+
+                % Map the node IDs back to the original vertex IDs and use
+                % those to define the coordinates making up the boundary
+                cycle = [TR{1} TR{1}(1)];
+                
+                boundary_verts = cycle;
+
+                for k = 1:size(vert_new2old,1)
+                    boundary_verts(cycle == vert_new2old(k,1)) = vert_new2old(k,2);
+                end
+
+                BOUNDARY{nBounds} = vertices(boundary_verts,:);
+
+                BOUNDARY_ROI_ID(nBounds) = roiID;
+
+                nBounds = nBounds + 1;   
+                end
+            end
     otherwise
         error('Unrecognised ''boundary_method'' option')
 end

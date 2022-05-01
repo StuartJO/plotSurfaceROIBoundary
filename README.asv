@@ -14,9 +14,7 @@ There are five ways of defining a boundary here (I know right? Overkill!!), 'fac
 
 'edge_vertices' finds the vertices which define the boundary of the ROI and draws the boundary along those (i.e., follows the edges between the vertices which make up the ROI boundary). 
 
-'edge_faces' finds the edges which are part of two faces with different ROIs and draws the boundary along those.
-
-(see the images belong if these descriptions are to confusing)
+'edge_faces' finds the edges which seperate two faces of different ROIs (i.e, the boundary)
 
 demo_plotSurfaceROIBoundary.m shows examples of how the code is used. See plotSurfaceROIBoundary.m, makeFaceVertexCData.m, and findROIboundaries.m for a more detailed description. I personally recommend using 'midpoint', visually it looks the cleanest and you can easily change the thickness/width of the boundary. 'faces' will look clean but you cannont change the thickness/width, 'centroid' doesn't look especially neat but you can change the thickness, while with 'edges' the boundaries of adjacent ROIs will leave a slight gap between them (i.e. they don't overlap) which can look a bit strange.
 

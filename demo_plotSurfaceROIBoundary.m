@@ -62,22 +62,29 @@ axis equal
 % Demonstrate different types of plots
 
 surface.vertices = lh_inflated_verts;
-boundary_type = {'faces','midpoint','centroid','edges','faces','midpoint','centroid','edges'};
+boundary_type = {'faces','midpoint','centroid','edge_vertices','edge_faces',...
+    'faces','midpoint','centroid','edge_vertices','edge_faces'};
 linewidth = 2;
 colorUnknownGrey = 1;
 
-for i = 1:8
+for i = 1:10
 
 figure
     
     % The data here is just each ROIs own ID number
 
-        if i < 5
+        if i < 6
             data = 1:100;
             cmap = lines(34);
+            savename = ['ROIS_',boundary_type{i},'_flat.png'];
         else
             data = lh_sulc;
             cmap = parula(100);
+            if i == 6
+            savename = ['sulc_',boundary_type{i},'_flat.png'];
+            else
+            savename = ['sulc_',boundary_type{i},'_interp.png'];    
+            end
         end
     
     [p,~,~,~,~,orig_data_limits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
@@ -97,6 +104,8 @@ figure
 
     p.EdgeColor = 'k';
     p.EdgeAlpha = .5;
+    
+    print(['./figures/',savename],'-dpng')
 
 end
 
