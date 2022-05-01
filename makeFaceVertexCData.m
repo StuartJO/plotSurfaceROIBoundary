@@ -182,9 +182,9 @@ if colorFaceBoundaries == 1
 
             if colorUnknownGrey == 0 && sum(isnan(data)) == 0
 
-            % Make it so the colormap has value inserted that represent the
-            % boundary and unknown ROIs but the presence of these values 
-            % won't affect how the colormap is applied to the data
+            % Make it so the colormap has a value inserted that represents 
+            % the boundary and unknown ROIs but the presence of these  
+            % values won't affect how the colormap is applied to the data
 
                  % The boundary will be coloured according to 'boundary_color'
 

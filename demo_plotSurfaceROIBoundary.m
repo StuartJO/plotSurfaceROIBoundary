@@ -64,12 +64,12 @@ axis equal
 surface.vertices = lh_inflated_verts;
 boundary_type = {'faces','midpoint','centroid','edge_vertices','edge_faces',...
     'faces','midpoint','centroid','edge_vertices','edge_faces'};
-linewidth = 2;
+linewidth = 4;
 colorUnknownGrey = 1;
 
 for i = 1:10
 
-figure
+figure('Position',[0 0  1680 933])
     
     % The data here is just each ROIs own ID number
 
@@ -87,7 +87,7 @@ figure
             end
         end
     
-    [p,~,~,~,~,orig_data_limits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
+    [p,~,new_cmap,~,new_climits,orig_data_limits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
 
     camlight(80,-10);
     camlight(-80,-10);
@@ -97,7 +97,24 @@ figure
     axis off
     axis tight
     axis equal
-
+    
+    % Mapping on the ROI id of each vertex to help with understanding how
+    % this all works
+    hold on
+    
+    % This mirrors how the redone colour assignment is performed by
+    % makeFaceVertexCData
+    lh_rand200_color_map = [.5 .5 .5; lines(34)];
+    lh_rand200_ = lh_rand200;
+    lh_rand200_(lh_rand200==0) = -2;
+    lh_rand200_color_ind = ceil(rescale(lh_rand200_,1,size(lh_rand200_color_map,1)));
+    lh_rand200_color = lh_rand200_color_map(lh_rand200_color_ind,:);
+    
+    s = scatter3(lh_inflated_verts(:,1)*1.01,lh_inflated_verts(:,2),lh_inflated_verts(:,3),40,lh_rand200_color,'filled');
+    s.Clipping = 'off';
+    s.MarkerEdgeColor = 'k';
+    s.LineWidth = 1;
+    
     % This just zooms into the area of interest    
     ylim([-25.2699   -8.7600])
     zlim([20.2174   31.3705])
