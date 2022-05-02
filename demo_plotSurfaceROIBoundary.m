@@ -122,7 +122,7 @@ figure('Position',[0 0  1680 933])
     p.EdgeColor = 'k';
     p.EdgeAlpha = .5;
     
-    print(['./figures/',savename],'-dpng')
+    %print(['./figures/',savename],'-dpng')
 
 end
 
