@@ -65,7 +65,17 @@ surface.vertices = lh_inflated_verts;
 boundary_type = {'faces','midpoint','centroid','edge_vertices','edge_faces',...
     'faces','midpoint','centroid','edge_vertices','edge_faces'};
 linewidth = 4;
-colorUnknownGrey = 1;
+
+
+% Set up the colors for each vertex. This mirrors how the redone colour 
+% assignment is performed by makeFaceVertexCData
+ lh_rand200_color_map = lines(34);
+ lh_rand200_ = lh_rand200;
+ lh_rand200_(lh_rand200==0)=NaN;
+ lh_rand200_color_ind = ceil(rescale(lh_rand200_,1,size(lh_rand200_color_map,1)));
+ lh_rand200_color_ind(isnan(lh_rand200_)) = 1;
+ lh_rand200_color = lh_rand200_color_map(lh_rand200_color_ind,:);
+ lh_rand200_color(isnan(lh_rand200_),:) = .5;
 
 for i = 1:10
 
@@ -87,7 +97,7 @@ figure('Position',[0 0  1680 933])
             end
         end
     
-    [p,~,new_cmap,~,new_climits,orig_data_limits] = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,colorUnknownGrey,linewidth);
+    p = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,linewidth);
 
     camlight(80,-10);
     camlight(-80,-10);
@@ -101,15 +111,7 @@ figure('Position',[0 0  1680 933])
     % Mapping on the ROI id of each vertex to help with understanding how
     % this all works
     hold on
-    
-    % This mirrors how the redone colour assignment is performed by
-    % makeFaceVertexCData
-    lh_rand200_color_map = [.5 .5 .5; lines(34)];
-    lh_rand200_ = lh_rand200;
-    lh_rand200_(lh_rand200==0) = -2;
-    lh_rand200_color_ind = ceil(rescale(lh_rand200_,1,size(lh_rand200_color_map,1)));
-    lh_rand200_color = lh_rand200_color_map(lh_rand200_color_ind,:);
-    
+        
     s = scatter3(lh_inflated_verts(:,1)*1.01,lh_inflated_verts(:,2),lh_inflated_verts(:,3),40,lh_rand200_color,'filled');
     s.Clipping = 'off';
     s.MarkerEdgeColor = 'k';
@@ -125,8 +127,3 @@ figure('Position',[0 0  1680 933])
     %print(['./figures/',savename],'-dpng')
 
 end
-
-% If you want to include a colorbar but don't want it to display the
-% black/grey values, you can do:
-% c = colorbar;
-% set(c, 'xlim', orig_data_limits);

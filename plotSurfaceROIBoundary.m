@@ -1,4 +1,5 @@
-function [p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,colorUnknownGrey,linewidth,climits)
+function [p,boundary_plot,BOUNDARY] = plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,linewidth,climits)
+%[p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,colorUnknownGrey,linewidth,climits)
 
 % This script is a wrapper for findROIboundaries and makeFaceVertexCData so
 % that they smoothly work together and you don't have to spend a lot of
@@ -31,9 +32,6 @@ function [p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plo
 % cmap = an N*3 matrix specifying the RGB values making up the colormap to
 % use
 %
-% colorUnknownGrey = set to 1 to colour any unknown rois (i.e. vertices
-% with an id of 0) grey
-%
 % linewidth = the width of the boundary when using 'midpoint', or 
 % 'centroid'.
 %
@@ -55,8 +53,6 @@ function [p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plo
 % boundary_plot = a strcture containing a line object defining each
 % boundary
 %
-% new_cmap = the new colormap being used for the figure
-%
 % BOUNDARY = the boundary of the rois. For 'faces' this will be a logical
 % where a value of 1 indicates that face is on the boundary between ROIs.
 % For 'midpoint', 'centroid' or 'edges', BOUNDARY will be a cell where each 
@@ -65,23 +61,12 @@ function [p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plo
 % continuous ROI, if a ROI is made up of multiple non-continuous parts 
 % (i.e., the ROI is made up of multiple unconnected sections), there will 
 % be a boundary for each of those parts
-%
-% new_climits = the new caxis limits for the data.
-%
-% orig_data_climits = the limits for data. If climits is used, this is just
-% that, but if not this will give you the limits for the original data. If
-% making a colorbar this should be used to set the range of that.
-%
-% If you want to include a colorbar but don't want it to display the
-% black/grey values, you can do:
-% c = colorbar;
-% set(c, 'xlim', orig_data_climits);
 
-if nargin < 7
+if nargin < 6
     linewidth = 2;
 end
 
-if nargin < 8 
+if nargin < 7 
     climits = [nanmin(data) nanmax(data)];
 end
 
@@ -117,9 +102,8 @@ switch boundary_method
         
     else
         % If there is data for each individual ROI, use 'flat' for the 
-        % face color. Also by default colour any unlabelled ROIs as grey        
+        % face color.      
         face_color_method = 'flat';
-        colorUnknownGrey = 1;
     end
     case 'none'
        colorFaceBoundaries = 0; 
@@ -129,20 +113,15 @@ switch boundary_method
 end
 
 % Get the vertex or face data and colormap to use
-[FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,colorUnknownGrey,climits);
+%[FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData_old(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,1,climits);
+
+FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,climits,colorFaceBoundaries);
 
 % Plot the surface using some preconfigured options
 p = patch(surface);
 set(p,'FaceVertexCData',FaceVertexCData,'EdgeColor','none','FaceColor',face_color_method,'Clipping','off');
 p.FaceLighting = 'gouraud';
 material dull
-
-% Apply the colormap to the current axes
-current_axes = gca;
-colormap(current_axes,new_cmap)
-
-% Apply the new color map limits
-caxis(new_climits);
 
 hold on
 
