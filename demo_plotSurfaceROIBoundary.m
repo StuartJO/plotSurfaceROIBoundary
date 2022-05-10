@@ -12,7 +12,7 @@ ax1 = axes('Position',[0.01 0 .3 1]);
 
 % This just plots the ROI ID number for each ROI
 
-plotSurfaceROIBoundary(surface,lh_rand200,1:100,'faces',jet(100),1,2);
+plotSurfaceROIBoundary(surface,lh_rand200,1:100,'faces',jet(100),2);
 
 % The following options set up the patch object to look pretty. This works
 % well for the left hemisphere (medial and lateral). Change the inputs to 
@@ -25,6 +25,7 @@ view([-90 0])
 axis off
 axis tight
 axis equal
+axis vis3d
 
 ax2 = axes('Position',[0.01+(1/3) 0 .3 1]);
 
@@ -34,7 +35,7 @@ cmap = flipud(hot(130));
 % value for each ROI
 random_data = normpdf(1:180,100,100);
 
-plotSurfaceROIBoundary(surface,lh_HCPMMP1,random_data,'midpoint',cmap(1:100,:),1,2);
+plotSurfaceROIBoundary(surface,lh_HCPMMP1,random_data,'midpoint',cmap(1:100,:),2);
 camlight(80,-10);
 camlight(-80,-10);
 
@@ -43,13 +44,14 @@ view([90 0])
 axis off
 axis tight
 axis equal
+axis vis3d
 
 ax3 = axes('Position',[0.01+(2/3) 0 .3 1]);
 
 % This plots sulcal depth, which is defined for each vertex
 
 surface.vertices = lh_verts;
-plotSurfaceROIBoundary(surface,lh_aparc,lh_sulc,'centroid',parula(100),1,4);
+plotSurfaceROIBoundary(surface,lh_aparc,lh_sulc,'centroid',parula(100),4);
 camlight(80,-10);
 camlight(-80,-10);
 
@@ -58,6 +60,7 @@ view([-90 0])
 axis off
 axis tight
 axis equal
+axis vis3d
 
 % Demonstrate different types of plots
 
@@ -107,6 +110,7 @@ figure('Position',[0 0  1680 933])
     axis off
     axis tight
     axis equal
+    %axis vis3d
     
     % Mapping on the ROI id of each vertex to help with understanding how
     % this all works
