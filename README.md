@@ -38,7 +38,7 @@ boundaryWidth is a scalar indicating the width of the boundary.
 
 'edge_faces' finds the edges which are part of two faces with different ROIs and draws the boundary along those.
 
-(see the images belong if these descriptions are to confusing)
+(see the images below if these descriptions are too confusing)
 
 demo_plotSurfaceROIBoundary.m shows examples of how the code is used. See plotSurfaceROIBoundary.m, makeFaceVertexCData.m, and findROIboundaries.m for a more detailed description. I personally recommend using 'midpoint', visually it looks the cleanest and you can easily change the thickness/width of the boundary. 'faces' will look clean but you cannont change the thickness/width, 'centroid' doesn't look especially neat but you can change the thickness, while with 'edge_vertices' the boundaries of adjacent ROIs will leave a slight gap between them (i.e. they don't overlap) which can look a bit strange. 'edge_faces' can look highly irregular when zoomed in.
 
