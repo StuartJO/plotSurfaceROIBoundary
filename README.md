@@ -15,11 +15,16 @@ p = plotSurfaceROIBoundary(surface,parc,data2plot,boundaryMethod,cmap,boundaryWi
 ```
 
 surface is a structure with the fields 'vertices' and 'faces', which define the vertices and faces of the surface respectively.
-parc is a vector with the parcellation ID of each vertex
-data2plot is a vector of data to plot for each ROI or each vertex
-boundaryMethod is one of 'faces', 'midpoint', 'centroid', 'edge_vertices' or 'edge_faces' (see below)
-cmap is the colormap you wish to use
-boundaryWidth is a scalar indicating the width of the boundary
+
+parc is a vector with the parcellation ID of each vertex.
+
+data2plot is a vector of data to plot for each ROI or each vertex.
+
+boundaryMethod is one of 'faces', 'midpoint', 'centroid', 'edge_vertices' or 'edge_faces' (see below).
+
+cmap is the colormap you wish to use.
+
+boundaryWidth is a scalar indicating the width of the boundary.
 
 ## Types of boundary plotting methods
 
