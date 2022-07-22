@@ -2,7 +2,7 @@
 
 <img src="./figures/SurfaceBoundaryPlotsExample.png" width="100%">
 
-These scripts will plot the boundaries of a ROI on a surface. Additionally code is provided so that certain regions can be excluded from the colourmap.
+These MATLAB scripts will plot the boundaries of a ROI on a surface. Additionally code is provided so that certain regions can be excluded from the colourmap.
 
 There are five ways of defining a boundary here (I know right? Overkill!!), 'faces', 'midpoint', 'centroid', 'edge_vertices', and 'edge_faces'.
 
