@@ -99,3 +99,7 @@ The gist is, a triangular mesh is just a graph. Vertices which are on the bounda
 ## Issues
 
 If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness. Also if the mesh has any holes in it, you may get strange results, but that is your fault for using a mesh with a hole in it :)
+
+## Contact
+
+Reach me at stuart.oldham@mcri.edu.au if you have any questions or issues (or just to tell me you are using it!)
