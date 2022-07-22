@@ -6,6 +6,23 @@ These scripts will plot the boundaries of a ROI on a surface. Additionally code 
 
 There are five ways of defining a boundary here (I know right? Overkill!!), 'faces', 'midpoint', 'centroid', 'edge_vertices', and 'edge_faces'.
 
+## How to run
+
+The code can be run as follows:
+
+```
+p = plotSurfaceROIBoundary(surface,parc,data2plot,boundaryMethod,cmap,boundaryWidth);
+```
+
+surface is a structure with the fields 'vertices' and 'faces', which define the vertices and faces of the surface respectively.
+parc is a vector with the parcellation ID of each vertex
+data2plot is a vector of data to plot for each ROI or each vertex
+boundaryMethod is one of 'faces', 'midpoint', 'centroid', 'edge_vertices' or 'edge_faces' (see below)
+cmap is the colormap you wish to use
+boundaryWidth is a scalar indicating the width of the boundary
+
+## Types of boundary plotting methods
+
 'faces' will find the faces which exist between ROIs and those will be coloured black to specify the boundary. 
 
 'midpoint' finds the edges that connect the vertices of two different ROIs and takes the midpoint of the edge and uses those coordinates to define the boundary. 
@@ -24,7 +41,7 @@ See makeFaceVertexCData.m for how to configure a colormap to exclude certain reg
 
 example_surface_data.mat includes vertices and faces for fsaverage, along with parcellations for the Desikan-Killiany atlas, HCPMMP1 parcellation, and a random 200 (100 ROIs per hemisphere) parcellation.
 
-# Plotting boundaries
+## Boundary examples
 
 The first five figures show the different types of boundary method projected over the surface where each face is coloured according to the vertex ROI IDs (each vertex is a dot coloured according to its ROI ID). While a face can be connected to multiple ROIs, each face is colored by the value of the first vertex that constitutes that face (in other words, when plotting each face appears to only be assigned to one ROI when it infact belongs to multiple). This is why for 'midpoint', 'centroid', and 'edge_vertices' the boundary drawn doesn't exactly follow the face colours. Anatomically based parcellations (like the Desikan-Killiany and HCPMMP1 parcellations) tend to produce jagged boundaries in my experience. All these figures can be replicated using demo_plotSurfaceROIBoundary.m
 
@@ -69,3 +86,7 @@ The next five figures show the different types of boundary method projected over
 'edge_faces'
 
 <img src="./figures/sulc_edge_faces_interp.png" width="100%">
+
+## Issues
+
+If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness
