@@ -128,6 +128,11 @@ figure('Position',[0 0  1680 933])
     p.EdgeColor = 'k';
     p.EdgeAlpha = .5;
     
+    % If you wanted to make a colorbar, this is what you would have to do:
+    % colormap(cmap)
+    % caxis([min(data) max(data)])
+    % c = colorbar
+    
     %print(['./figures/',savename],'-dpng')
 
 end
