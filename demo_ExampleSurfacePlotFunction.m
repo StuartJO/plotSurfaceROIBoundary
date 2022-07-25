@@ -18,7 +18,7 @@ data_label = 'Gene PC1';
 
 ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
 
-print('./figures/Example1.png','-dpng','-r300')
+%print('./figures/Example1.png','-dpng','-r300')
 
 %% Plot parcellation over continuous data
 
@@ -35,7 +35,7 @@ data_label = 'Sulcal depth';
 
 ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
 
-print('./figures/Example2.png','-dpng','-r300')
+%print('./figures/Example2.png','-dpng','-r300')
 
 %% Plot parcellation over another parcellation
 
@@ -57,7 +57,7 @@ data_label = 'Yeo network';
 caxis([nanmin(data)-.5 nanmax(data)+.5])
 c.Ticks = 1:7;
 
-print('./figures/Example3.png','-dpng','-r300')
+%print('./figures/Example3.png','-dpng','-r300')
 
 %% Plot data that has been thresholded
 
@@ -79,7 +79,7 @@ data_label = 'Functional gradient';
 
 ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
 
-print('./figures/Example4.png','-dpng','-r300')
+%print('./figures/Example4.png','-dpng','-r300')
 
 %% Threshold data on a per region basis
 
@@ -105,7 +105,7 @@ data_label = 'Functional gradient';
 
 ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
 
-print('./figures/Example5.png','-dpng','-r300')
+%print('./figures/Example5.png','-dpng','-r300')
 
 %% Threshold data and borders
 % This will only work if 'data' is plotted continuously on the surface
@@ -141,7 +141,7 @@ data_label = 'Functional gradient';
 
 ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
 
-print('./figures/Example6.png','-dpng','-r300')
+%print('./figures/Example6.png','-dpng','-r300')
 
 %% Plot data where ROI ids are not sequential
 
@@ -179,4 +179,4 @@ data_label = 'HCPMMP1 ROI ID';
 
 ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
 
-print('./figures/Example7.png','-dpng','-r300')
+%print('./figures/Example7.png','-dpng','-r300')
