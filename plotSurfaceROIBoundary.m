@@ -65,11 +65,21 @@ function [p,boundary_plot,BOUNDARY] = plotSurfaceROIBoundary(surface,vertex_id,d
 % (i.e., the ROI is made up of multiple unconnected sections), there will 
 % be a boundary for each of those parts
 
+% Extract the faces and vertices
+vertices = surface.vertices;
+faces = surface.faces;
+
 if nargin < 6
     linewidth = 2;
 end
 
 data_orig = data;
+
+if sum(vertex_id==0)>0
+    vert0present = 1;
+else
+    vert0present = 0;
+end
 
 if min(size(data)) == 1
 
@@ -81,7 +91,7 @@ if min(size(data)) == 1
     end
     
     if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
-        error('''data'' needs to either contain one value per roi, or contain a value for each vertex')
+        error('''data'' needs to either contain one value per roi, contain a value for each vertex, or be an N*2 array showing which data to plot to which ROI ID')
     end
     
     if length(data) ~= length(vertices)    
@@ -101,10 +111,6 @@ end
 if nargin < 7 
     climits = [nanmin(data) nanmax(data)];
 end
-
-% Extract the faces and vertices
-vertices = surface.vertices;
-faces = surface.faces;
 
 % Find the boundaries of the ROIs
 switch boundary_method

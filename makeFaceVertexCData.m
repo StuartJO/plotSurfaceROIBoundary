@@ -68,7 +68,7 @@ if min(size(data)) == 1
     end
     
     if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
-        error('''data'' needs to either contain one value per roi, or contain a value for each vertex')
+        error('''data'' needs to either contain one value per roi, contain a value for each vertex, or be an N*2 array showing which data to plot to which ROI ID')
     end
     
     if length(data) ~= length(vertices)    
