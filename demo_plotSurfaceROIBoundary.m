@@ -1,12 +1,13 @@
 % This demonstration is to show the different way this code can plot the
 % ROI boundaries
 
-load('example_surface_data.mat','lh_inflated_verts','lh_verts','lh_faces','lh_HCPMMP1','lh_aparc','lh_rand200','lh_sulc')
+load('surface_data.mat','lh_inflated_verts','lh_verts','lh_faces','lh_HCPMMP1','lh_aparc','lh_rand200')
+load('example_data.mat','lh_sulc')
 
 surface.vertices = lh_inflated_verts;
 surface.faces = lh_faces;
 
-figure
+figure('Position',[0 0 1920 963])
 
 ax1 = axes('Position',[0.01 0 .3 1]);
 

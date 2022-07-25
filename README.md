@@ -78,6 +78,8 @@ See makeFaceVertexCData.m for how to configure a colormap to exclude certain reg
 
 surface_data.mat includes vertices and faces for fsaverage, along with parcellations for the Desikan-Killiany atlas, HCPMMP1 parcellation, a random 200/500 (100/250 ROIs per hemisphere) parcellation, and all the Schaefer 7 network parcellations.
 
+example_data.mat includes some example data to plot on the surface
+
 ## Boundary examples
 
 The first five figures show the different types of boundary method projected over the surface where each face is coloured according to the vertex ROI IDs (each vertex is a dot coloured according to its ROI ID). While a face can be connected to multiple ROIs, each face is colored by the value of the first vertex that constitutes that face (in other words, when plotting each face appears to only be assigned to one ROI when it infact belongs to multiple). This is why for 'midpoint', 'centroid', and 'edge_vertices' the boundary drawn doesn't exactly follow the face colours. Anatomically based parcellations (like the Desikan-Killiany and HCPMMP1 parcellations) tend to produce jagged boundaries in my experience. All these figures can be replicated using demo_plotSurfaceROIBoundary.m
@@ -131,6 +133,8 @@ The gist is, a triangular mesh is just a graph. Vertices which are on the bounda
 ## Issues
 
 If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticeable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness. If the mesh is a flat mesh this code is also unlikely to work (except perhaps for the 'faces' option).Also if the mesh has any holes in it, you may get strange results, but that is your fault for using a mesh with a hole in it :)
+
+There are also better ways to structure the functions to ensure they handle inputs better. One day I will get around to coding them that way, one day....
 
 ## Contact
 
