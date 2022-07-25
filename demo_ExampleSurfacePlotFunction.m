@@ -70,6 +70,9 @@ data = lh_func_grad1;
 % Threshold to only display data 1 SD above the mean
 data(data<(mean(data) +std(data))) = NaN;
 
+% Any data which has a NaN value will not be assigned a colour from the
+% colour map. Instead by default it will be displayed as grey.
+
 cmap = turbo(256);
 
 data_label = 'Functional gradient';
@@ -77,3 +80,65 @@ data_label = 'Functional gradient';
 ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
 
 print('./figures/Example4.png','-dpng','-r300')
+
+%% Threshold data on a per region basis
+
+surface.vertices = lh_inflated_verts;
+surface.faces = lh_faces;
+
+vertex_id = lh_rand500;
+
+data = zeros(length(unique(vertex_id))-1,1);
+for i = 1:length(data)
+    data(i) = mean(lh_func_grad1(vertex_id==i));
+end
+    
+% Threshold to only display data 1 SD above the mean
+data(data<(mean(data) +std(data))) = NaN;
+
+% Any data which has a NaN value will not be assigned a colour from the
+% colour map. Instead by default it will be displayed as grey.
+
+cmap = turbo(256);
+
+data_label = 'Functional gradient';
+
+ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
+
+print('./figures/Example5.png','-dpng','-r300')
+
+%% Threshold data and borders
+% This will only work if 'data' is plotted continuously on the surface
+% Why you would want to do this, I have no idea but here you go anyway!
+
+surface.vertices = lh_inflated_verts;
+surface.faces = lh_faces;
+
+vertex_id = lh_rand500;
+
+data_temp = zeros(length(unique(vertex_id))-1,1);
+for i = 1:length(data_temp)
+    data_temp(i) = mean(lh_func_grad1(vertex_id==i));
+end
+    
+% Threshold to only display data 1 SD above the mean
+data_temp(data_temp<(mean(data_temp) +std(data_temp))) = NaN;
+
+% Plot the data back to the surface
+data = nan(size(vertex_id));
+for i = 1:length(data_temp)
+    data(vertex_id==i) = data_temp(i);
+end
+
+vertex_id(ismember(vertex_id,find(isnan(data_temp)))) = 0;
+
+% If you set a regions vertex_id to 0, then it won't appear to be plotted 
+% (technically is still is plotted but as an unknown region)
+
+cmap = turbo(256);
+
+data_label = 'Functional gradient';
+
+ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
+
+print('./figures/Example6.png','-dpng','-r300')

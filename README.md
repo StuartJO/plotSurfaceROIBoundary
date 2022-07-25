@@ -28,7 +28,7 @@ boundaryWidth is a scalar indicating the width of the boundary.
 
 ## Examples of types of plots
 
-The simplist way is to just plot some data for each ROI and use this code to highlight the boundaries/borders of each ROI
+The simplist way is to just plot some data for each ROI and use this code to highlight the boundaries/borders of each ROI:
 
 <img src="./figures/Example1.png" width="100%">
 
@@ -36,13 +36,23 @@ You can also project a parcellation onto continuous variations along a surface:
 
 <img src="./figures/Example2.png" width="100%">
 
-Plot on parcellation on the surface, then draw the boundaries of another (note you could also plot the boundaries of multiple parcellations if you so wished):
+Plot the parcellation on the surface, then draw the boundaries of another (note you could also plot the boundaries of multiple parcellations if you so wished):
 
 <img src="./figures/Example3.png" width="100%">
 
 Additionally the code allows you to easily control if a colour should even be displayed for a given region (i.e., you might want to exclude the medial wall from being displayed or show thresholded data):
 
 <img src="./figures/Example4.png" width="100%">
+
+You can also threshold on a per ROI basis:
+
+<img src="./figures/Example5.png" width="100%">
+
+And you can even 'threshold' the borders (quite why you would want to I don't know):
+
+<img src="./figures/Example5.png" width="100%">
+
+The script demo_ExampleSurfacePlotFunction.m will reproduce all of the above plots
 
 ## Types of boundary plotting methods
 
@@ -116,7 +126,7 @@ The gist is, a triangular mesh is just a graph. Vertices which are on the bounda
 
 ## Issues
 
-If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticeable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness. Also if the mesh has any holes in it, you may get strange results, but that is your fault for using a mesh with a hole in it :)
+If the ROIs are not sequentially labelled from 1:X, then the mapping of colours to each region will not occur correctly (plotting the borders will work fine however). You can get around this by projecting the data yourself onto the surface and using that instead of getting the script to do it for you. If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticeable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness. If the mesh is a flat mesh this code is also unlikely to work (except perhaps for the 'faces' option).Also if the mesh has any holes in it, you may get strange results, but that is your fault for using a mesh with a hole in it :)
 
 ## Contact
 
