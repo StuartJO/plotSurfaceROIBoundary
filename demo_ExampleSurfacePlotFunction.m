@@ -142,3 +142,41 @@ data_label = 'Functional gradient';
 ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
 
 print('./figures/Example6.png','-dpng','-r300')
+
+%% Plot data where ROI ids are not sequential
+
+% Read the .annot file for the HCPMMP1 parcellation
+[vertices, label, colortable] = read_annotation('lh.HCPMMP1.annot');
+
+surface.vertices = lh_inflated_verts;
+surface.faces = lh_faces;
+
+vertex_id = label;
+
+% Get the IDs of the ROIs. Note this values are not sequential
+ROI_ids = colortable.table(:,5);
+
+% For some reason in this .annot file, the ID for the medial wall in
+% 'label' and 'ROI_ids' do not match. Can be easily fixed by substituting 
+% the value for the medial wall in 'label' to 'ROI_ids' (it will be the
+% only value not present in both).   
+HCPMMP1_medialwall = setdiff(unique(label),ROI_ids);
+
+data = [(1:size(ROI_ids,1))' ROI_ids];
+
+data(1,2) = HCPMMP1_medialwall;
+
+% Pull out the colormap from the .annot file
+cmap = colortable.table(:,1:3)./255;
+
+% Replace the colour for the medial wall with grey
+cmap(1,:) = [.5 .5 .5];
+
+% Alternative way to displaying the medial wall as grey:
+% vertex_id(vertex_id==HCPMMP1_medialwall) = 0;
+
+data_label = 'HCPMMP1 ROI ID';
+
+ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label);
+
+print('./figures/Example7.png','-dpng','-r300')

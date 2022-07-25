@@ -14,7 +14,12 @@ function [p,boundary_plot,BOUNDARY] = plotSurfaceROIBoundary(surface,vertex_id,d
 %
 % data = either data for each individual roi or data for each vertex.
 % If you don't want any data to be displayed for a roi or vertex, set that
-% value to NaN.
+% value to NaN. Note that this assumes a roi with a vertex_id has no data
+% to plot. Additionally, if the vertex_ids are non sequential (e.g., like
+% what you get from an .annot file) then data can take the form of a ROI*2
+% matrix, where ROI is the number of regions, each row is a particular 
+% region with the first column being the data to plot and the second being
+% the region ID (should correspond to what is in vertex_id)
 %
 % boundary_method = 'faces', 'midpoint', 'centroid', 'edge_vertices', or 
 % 'edge_faces'. 'faces' will find the faces which exist between ROIs and
@@ -62,6 +67,35 @@ function [p,boundary_plot,BOUNDARY] = plotSurfaceROIBoundary(surface,vertex_id,d
 
 if nargin < 6
     linewidth = 2;
+end
+
+data_orig = data;
+
+if min(size(data)) == 1
+
+    % Because some steps require concatination in a specific dimension,
+    % the input data needs to be configured such that it is an 1*N array
+
+    if size(data,2) > size(data,1)
+        data = data';
+    end
+    
+    if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
+        error('''data'' needs to either contain one value per roi, or contain a value for each vertex')
+    end
+    
+    if length(data) ~= length(vertices)    
+       ROI_ids = (1:length(data))';
+    end
+
+else
+    if size(data,2) ~= 2
+       error('If providing ''data'' with ROI ids, then the first column needs to be the data and the second the ROI id') 
+    end
+    
+    ROI_ids = data(:,2);
+    data = data(:,1);
+    
 end
 
 if nargin < 7 
@@ -115,7 +149,7 @@ end
 % This is the old way of doing it, it generated a new colormap instead of assigning colours to faces/vertices
 %[FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData_old(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,1,climits);
 
-FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,climits,colorFaceBoundaries);
+FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data_orig,cmap,climits,colorFaceBoundaries);
 
 % Plot the surface using some preconfigured options
 p = patch(surface);

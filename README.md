@@ -11,12 +11,12 @@ There are five ways of defining a boundary here (I know right? Overkill!!), 'fac
 The code can be run as follows:
 
 ```
-p = plotSurfaceROIBoundary(surface,parc,data2plot,boundaryMethod,cmap,boundaryWidth);
+p = plotSurfaceROIBoundary(surface,vertex_id,data2plot,boundaryMethod,cmap,boundaryWidth);
 ```
 
 surface is a structure with the fields 'vertices' and 'faces', which define the vertices and faces of the surface respectively.
 
-parc is a vector with the parcellation ID of each vertex.
+vertex_id is a vector with the ROI ID of each vertex.
 
 data2plot is a vector of data to plot for each ROI or each vertex.
 
@@ -48,9 +48,13 @@ You can also threshold on a per ROI basis:
 
 <img src="./figures/Example5.png" width="100%">
 
-And you can even 'threshold' the borders (quite why you would want to I don't know):
+You can even 'threshold' the borders (quite why you would want to I don't know):
 
 <img src="./figures/Example6.png" width="100%">
+
+If the ROIs are not sequentially numbered (like you get from an .annot file), the code can adapt to this (makes more sense if you see the script):
+
+<img src="./figures/Example7.png" width="100%">
 
 The script demo_ExampleSurfacePlotFunction.m will reproduce all of the above plots
 
@@ -126,7 +130,7 @@ The gist is, a triangular mesh is just a graph. Vertices which are on the bounda
 
 ## Issues
 
-If the ROIs are not sequentially labelled from 1:X, then the mapping of colours to each region will not occur correctly (plotting the borders will work fine however). You can get around this by projecting the data yourself onto the surface and using that instead of getting the script to do it for you. If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticeable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness. If the mesh is a flat mesh this code is also unlikely to work (except perhaps for the 'faces' option).Also if the mesh has any holes in it, you may get strange results, but that is your fault for using a mesh with a hole in it :)
+If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticeable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness. If the mesh is a flat mesh this code is also unlikely to work (except perhaps for the 'faces' option).Also if the mesh has any holes in it, you may get strange results, but that is your fault for using a mesh with a hole in it :)
 
 ## Contact
 
