@@ -1,5 +1,4 @@
 function [p,boundary_plot,BOUNDARY] = plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,linewidth,climits)
-%[p,boundary_plot,new_cmap,BOUNDARY,new_climits,orig_data_climits] = plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,colorUnknownGrey,linewidth,climits)
 
 % This script is a wrapper for findROIboundaries and makeFaceVertexCData so
 % that they smoothly work together and you don't have to spend a lot of
@@ -113,6 +112,8 @@ switch boundary_method
 end
 
 % Get the vertex or face data and colormap to use
+
+% This is the old way of doing it, it generated a new colormap instead of assigning colours to faces/vertices
 %[FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData_old(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,1,climits);
 
 FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,climits,colorFaceBoundaries);
