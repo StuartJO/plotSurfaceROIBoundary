@@ -50,7 +50,7 @@ You can also threshold on a per ROI basis:
 
 And you can even 'threshold' the borders (quite why you would want to I don't know):
 
-<img src="./figures/Example5.png" width="100%">
+<img src="./figures/Example6.png" width="100%">
 
 The script demo_ExampleSurfacePlotFunction.m will reproduce all of the above plots
 
