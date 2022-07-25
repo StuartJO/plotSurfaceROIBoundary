@@ -26,6 +26,24 @@ cmap is the colormap you wish to use.
 
 boundaryWidth is a scalar indicating the width of the boundary.
 
+## Examples of types of plots
+
+The simplist way is to just plot some data for each ROI and use this code to highlight the boundaries/borders of each ROI
+
+<img src="./figures/Example1.png" width="100%">
+
+You can also project a parcellation onto continuous variations along a surface:
+
+<img src="./figures/Example2.png" width="100%">
+
+Plot on parcellation on the surface, then draw the boundaries of another (note you could also plot the boundaries of multiple parcellations if you so wished):
+
+<img src="./figures/Example3.png" width="100%">
+
+Additionally the code allows you to easily control if a colour should even be displayed for a given region (i.e., you might want to exclude the medial wall from being displayed or show thresholded data):
+
+<img src="./figures/Example4.png" width="100%">
+
 ## Types of boundary plotting methods
 
 'faces' will find the faces which exist between ROIs and those will be coloured black to specify the boundary. 
@@ -40,11 +58,11 @@ boundaryWidth is a scalar indicating the width of the boundary.
 
 (see the images below if these descriptions are too confusing)
 
-demo_plotSurfaceROIBoundary.m shows examples of how the code is used. See plotSurfaceROIBoundary.m, makeFaceVertexCData.m, and findROIboundaries.m for a more detailed description. I personally recommend using 'midpoint', visually it looks the cleanest and you can easily change the thickness/width of the boundary. 'faces' will look clean but you cannont change the thickness/width, 'centroid' doesn't look especially neat but you can change the thickness, while with 'edge_vertices' the boundaries of adjacent ROIs will leave a slight gap between them (i.e. they don't overlap) which can look a bit strange. 'edge_faces' can look highly irregular when zoomed in.
+demo_plotSurfaceROIBoundary.m shows examples of the different boundary methods. See plotSurfaceROIBoundary.m, makeFaceVertexCData.m, and findROIboundaries.m for a more detailed description. I personally recommend using 'midpoint', visually it looks the cleanest and you can easily change the thickness/width of the boundary. 'faces' will look clean but you cannont change the thickness/width, 'centroid' doesn't look especially neat but you can change the thickness, while with 'edge_vertices' the boundaries of adjacent ROIs will leave a slight gap between them (i.e. they don't overlap) which can look a bit strange. 'edge_faces' can look highly irregular when zoomed in.
 
 See makeFaceVertexCData.m for how to configure a colormap to exclude certain regions (e.g., regions which have no ROI information). This function works by assigning a colour directly to each face/vertex instead of getting MATLAB to automatically do it. This allows for somewhat easier manipulation (and it is easier to have multiple colour maps in a plot this way!).
 
-example_surface_data.mat includes vertices and faces for fsaverage, along with parcellations for the Desikan-Killiany atlas, HCPMMP1 parcellation, and a random 200 (100 ROIs per hemisphere) parcellation.
+surface_data.mat includes vertices and faces for fsaverage, along with parcellations for the Desikan-Killiany atlas, HCPMMP1 parcellation, a random 200/500 (100/250 ROIs per hemisphere) parcellation, and all the Schaefer 7 network parcellations.
 
 ## Boundary examples
 

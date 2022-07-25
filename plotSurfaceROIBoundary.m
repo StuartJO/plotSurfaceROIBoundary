@@ -7,9 +7,8 @@ function [p,boundary_plot,BOUNDARY] = plotSurfaceROIBoundary(surface,vertex_id,d
 
 % Inputs:
 %
-% vertices = the vertices making up the surface
-%
-% faces = the faces of the surface
+% surface = a structure with two fields: vertices (the vertices making up 
+% the surface) and faces (the faces of the surface)
 %
 % vertex_id = the roi id of each vertex
 %

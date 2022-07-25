@@ -46,8 +46,22 @@ function FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cma
 % Stuart Oldham, Monash University, 2020
 % Thanks to the coronavirus for giving me the time to make this script
 
+if sum(vertex_id==0)>0
+    vert0present = 1;
+else
+    vert0present = 0;
+end
+
+if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
+    error('data needs to either contain one value per roi, or contain a value for each vertex')
+end
+
 if nargin < 6
-    climits = [nanmin(data) nanmax(data)];
+    if length(data) == length(vertex_id)
+        climits = [nanmin(data(vertex_id>0)) nanmax(data(vertex_id>0))];
+    else
+        climits = [nanmin(data) nanmax(data)];
+    end
 end
 
 if nargin < 7
@@ -62,16 +76,6 @@ end
 if nargin < 9
     % Set the boundary colour (black)
     boundary_color = [0 0 0];    
-end
-
-if sum(vertex_id==0)>0
-    vert0present = 1;
-else
-    vert0present = 0;
-end
-
-if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
-    error('data needs to either contain one value per roi, or contain a value for each vertex')
 end
 
 % Because some steps require concatination in a specific dimension,

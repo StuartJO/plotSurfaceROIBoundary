@@ -80,6 +80,8 @@ linewidth = 4;
  lh_rand200_color = lh_rand200_color_map(lh_rand200_color_ind,:);
  lh_rand200_color(isnan(lh_rand200_),:) = .5;
 
+ FaceVertexCData = makeFaceVertexCData(surface.vertices,surface.faces,lh_rand200,lh_rand200,lh_rand200_color_map);
+ 
 for i = 1:10
 
 figure('Position',[0 0  1680 933])
