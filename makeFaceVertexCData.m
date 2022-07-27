@@ -1,8 +1,9 @@
 function FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,climits,colorFaceBoundaries,unknown_color,boundary_color)
 
-% This script will plot the boundaries defined by some parcellation/ROIS on
-% a surface projection. It can also alter the colormap so regions that do
-% not have any information are coloured grey.
+% This script will assign colours to each face/vertex by assigning each
+% value in 'data' a colour from 'cmap'. This code also allows you to 
+% indicate if a particular area should be displayed with any colour at
+% all.
 %
 % Inputs:
 %
