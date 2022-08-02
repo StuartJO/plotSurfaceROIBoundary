@@ -128,7 +128,7 @@ The next five figures show the different types of boundary method projected over
 
 ## But Stuart how does it all work!?!
 
-The gist is, a triangular mesh is just a graph. Vertices which are on the boundary of a region will have edges that connect not only to other vertices that make up that region, but to edges to vertices of other regions as well. Therefore all we need to do is find vertices whose neighbours (i.e., other vertices they are directly connected by an edge to) are from a different region (essentially we are just pulling out subnetworks). Then you can use this information to plot a boundary in the different ways I discussed above. 
+The gist is, a triangular mesh is just a graph. Vertices which are on the boundary of a region will have edges that connect not only to other vertices that make up that region, but edges to vertices of other regions as well. Therefore all we need to do is find vertices whose neighbours (i.e., other vertices they are directly connected by an edge to) are from a different region (essentially we are just pulling out subnetworks). Then you can use this information to plot a boundary in the different ways I discussed above. 
 
 ## Issues
 
