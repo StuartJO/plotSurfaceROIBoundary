@@ -1,4 +1,4 @@
-function [BOUNDARY,BOUNDARY_ROI_ID,ROI_COMPONENTS] = findROIboundaries(vertices,faces,vertex_id,boundary_method)
+function [BOUNDARY,BOUNDARY_ROI_ID,ROI_COMPONENTS,BOUNDARY_VERTS] = findROIboundaries(vertices,faces,vertex_id,boundary_method)
 
 % This script will plot the boundaries defined by some parcellation/ROIS on
 % a surface projection. It can also alter the colormap so regions that do
@@ -52,6 +52,10 @@ function [BOUNDARY,BOUNDARY_ROI_ID,ROI_COMPONENTS] = findROIboundaries(vertices,
 
 if nargin < 4
    boundary_method = 'midpoint'; 
+end
+switch boundary_method
+    case {'midpoint','centroid','faces','edge_faces'}
+    BOUNDARY_VERTS = [];    
 end
 
 switch boundary_method
@@ -420,7 +424,7 @@ switch boundary_method
             % We don't know before hand how many distinct ROI boundaries
             % there will be, so we update it as we go.
             
-            BOUNDARY_ROI_ID(nBounds) = i;
+            BOUNDARY_ROI_ID(nBounds) = roi_ids(i);
 
             nBounds = nBounds + 1;
             
@@ -584,7 +588,9 @@ switch boundary_method
                     end
 
                     BOUNDARY{nBounds} = vertices(boundary_verts,:);
-
+                        
+                    BOUNDARY_VERTS{nBounds} = boundary_verts;
+                    
                     BOUNDARY_ROI_ID(nBounds) = i;
 
                     nBounds = nBounds + 1;   
