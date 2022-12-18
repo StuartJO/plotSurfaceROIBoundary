@@ -132,7 +132,7 @@ The gist is, a triangular mesh is just a graph. Vertices which are on the bounda
 
 ## Issues
 
-If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticeable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness. If the mesh is a flat mesh this code is also unlikely to work (except perhaps for the 'faces' option).Also if the mesh has any holes in it, you may get strange results, but that is your fault for using a mesh with a hole in it :)
+If the surface of a particular region is very complex many of the boundary plotting approaches may not work especially well. My code makes some assumptions and these can be violated at times. However I have found that these issue are only noticeable if you zoom all the way in. If in doubt, the 'faces' method should be fairly robust to weirdness. If the mesh is a flat mesh this code is also unlikely to work (except perhaps for the 'faces' option). Also if the mesh has any holes in it, you may get strange results, but that is your fault for using a mesh with a hole in it :)
 
 There are also better ways to structure the functions to ensure they handle inputs better. One day I will get around to coding them that way, one day....
 
