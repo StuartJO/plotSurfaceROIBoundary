@@ -37,7 +37,7 @@ function FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cma
 % suggest threshold the data in advance and all should be good.
 %
 % colorFaceBoundaries = set to 1 if you want the faces which make up the
-% boundaries of each ROI to be coloured black. The code will then cofigure 
+% boundaries of each ROI to be coloured black. The code will then configure 
 % FaceVertexCData to be a value per face instead of per vertex
 %
 % unknown_color = the color to assign to all unknown regions (areas with a

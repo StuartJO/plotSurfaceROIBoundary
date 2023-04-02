@@ -118,6 +118,8 @@ switch boundary_method
 BOUNDARY = [];        
     case {'midpoint','centroid','edge_vertices','faces','edge_faces'}
 BOUNDARY = findROIboundaries(vertices,faces,vertex_id,boundary_method);
+    otherwise
+        error([boundary_method,' is not a recognised boundary method'])
 end
 
 % Set up some options. 
