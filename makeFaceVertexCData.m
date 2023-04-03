@@ -164,7 +164,7 @@ if colorFaceBoundaries == 1
 
             % Map to an index for the colormap
 
-            color_ind = ceil(rescale(face_data,1,size(cmap,1)));
+            color_ind = round(rescale(face_data,1,size(cmap,1)));
 
             % Temporarily assign NaNs (i.e., the value for unknown regions) 
             % to a value so logical indexing doesn't screw up 
@@ -216,7 +216,7 @@ elseif colorFaceBoundaries == 0
     vert_data(Ndata+1) = cmin;
     vert_data(Ndata+2) = cmax;
     
-    color_ind = ceil(rescale(vert_data,1,size(cmap,1)));
+    color_ind = round(rescale(vert_data,1,size(cmap,1)));
 
     % Temporarily assign NaNs (i.e., the value for unknown regions) 
     % to a value so logical indexing doesn't screw up 
