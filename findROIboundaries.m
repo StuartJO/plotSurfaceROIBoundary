@@ -54,7 +54,7 @@ if nargin < 4
    boundary_method = 'midpoint'; 
 end
 switch boundary_method
-    case {'midpoint','centroid','faces','edge_faces'}
+    case {'centroid','faces','edge_faces'}
     BOUNDARY_VERTS = [];    
 end
 
@@ -109,7 +109,7 @@ switch boundary_method
     % to be found
     [edges_sorted,edges_sorted_ind] = sortrows(sort(edges,2));
 
-    clear edges
+    %clear edges
 
     % Extract all of the edges metadata into one matrix. 
     % edges_metadata(:,1:2) are the IDs of the vertices making up that
@@ -121,7 +121,7 @@ switch boundary_method
     edges_metadata = [edges_sorted  vertex_id(edges_sorted) edge_color(edges_sorted_ind,:) edge_faceID(edges_sorted_ind,:) boundary_faces(edge_faceID(edges_sorted_ind,:))];
 
     % Clean up some large matrices/arrays
-    clear edges_sorted edge_faceID edge_color
+    %clear edges_sorted edge_faceID edge_color
 
     % Get the unique data for each edge. Each edge is assigned to 
     % two faces so will appear twice in this list
@@ -143,7 +143,7 @@ switch boundary_method
 
     unique_edges_metadata = [edges_unique1(:,1:4) double((edges_unique1(:,5)-edges_unique2(:,5))~=0) edges_unique1(:,6) edges_unique2(:,6) max(edges_unique1(:,7),edges_unique2(:,7))];
     
-    clear edges_unqiue edges_unique1 edges_unique2 
+    %clear edges_unqiue edges_unique1 edges_unique2 
     
     switch boundary_method
     
@@ -181,7 +181,7 @@ switch boundary_method
     nBounds = 1;
     
     ROI_COMPONENTS = zeros(nrois,1);
-
+    %save('errors1.mat')
     for i = 1:nrois
         
         % Find the boundary edges for a given roi
@@ -303,38 +303,26 @@ switch boundary_method
             nBounds = nBounds + 1;
     
             else
+                
+            edgesINDS_temp = [edgesINDS; edgesINDS(1,:)];
+            
             % For the rois boundary edges, get the number of rois the
             % corresponding faces are connected to
 
-            Boundary_verts_nrois = boundary_edges_face_nrois(edgesINDS,:); 
+            Boundary_verts_nrois = boundary_edges_face_nrois(edgesINDS_temp,:); 
 
             % Find the "corners" (i.e. where three rois intersect) of the
             % boundary
 
-            boundary_corner_points = find(max(Boundary_verts_nrois,[],2)==3);
-
+            boundary_edge_corners = find(max(Boundary_verts_nrois,[],2)==3);
+            
+            boundary_corner_points_ind = find(diff(boundary_edge_corners)==1);
+            
+            boundary_corner_points = boundary_edge_corners(boundary_corner_points_ind);
+                        
             % Check there are corners for this boundary
 
             if ~isempty(boundary_corner_points)
-
-            % Prevent the boundary from starting on a corner, this messes up
-            % code later. The corners should come in pairs in EdgeINDS and 
-            % the code expects as such. If the first edge but not second
-            % edge in a corner edge, this means the last edge is a corner
-            % edge. If so we just reorder to matrix to add the starting
-            % edge to the end
-                
-                if boundary_corner_points(1) == 1 && boundary_corner_points(2) == 1          
-                    EdgeINDS_1 = edgesINDS(1,:);
-
-                    edgesINDS(1,:) = [];
-
-                    edgesINDS(length(edgesINDS)+1,:) = EdgeINDS_1;
-
-                    Boundary_verts_nrois = boundary_edges_face_nrois(edgesINDS,:);
-
-                    boundary_corner_points = find(max(Boundary_verts_nrois,[],2)==3);
-                end        
             
                 % Find the corresponding faces of the rois boundary edge 
 
@@ -351,15 +339,30 @@ switch boundary_method
 
                 % Create a binary mask of which edges are corners
 
-                Boundary_corner_faces_mask = Boundary_verts_nrois==3;
+                Boundary_corner_faces_mask = max(Boundary_verts_nrois,[],2)==3;
 
                 % Find the faces which make up the corners
 
-                corner_faces = Boundary_faces;
+                corner_faces = [Boundary_faces; Boundary_faces(1,:)];
+                
+                %corner_faces = Boundary_faces;
+                                
+                Ncorner_faces = size(corner_faces,1)-1;
+                       
+                for k = 1:Ncorner_faces
+                    In = ismember(corner_faces(k,:),corner_faces(k+1,:));
+                    if In(2) == 0
+                        corner_faces(k,:) = corner_faces(k,[2 1]);
+                    end
+                end
+                
+                %corner_faces(Ncorner_faces+1,:) = [];
+                
+                %corner_faces(~Boundary_corner_faces_mask) = 0;
 
-                corner_faces(~Boundary_corner_faces_mask) = 0;
-
-                boundary_corner_faces = max(corner_faces(boundary_corner_points,:),[],2);
+                boundary_corner_faces = corner_faces(:,2);
+                
+                %boundary_corner_faces = max(corner_faces(boundary_corner_points,:),[],2);
 
                 % Find the vertices of the corner faces
 
@@ -375,12 +378,12 @@ switch boundary_method
                 % for a pair of adjacent corners, you take the coordinates
                 % of the second of the pair but use the first to get the
                 % point to insert the coordinate
-                corner_coords2use_ind = find(diff(boundary_corner_points)==1);
+                %corner_coords2use_ind = find(diff(boundary_corner_points)==1);
 
-                corner_coords2use = corner_coords(corner_coords2use_ind+1,:);
-
-                corner_coords_insert = boundary_corner_points(corner_coords2use_ind);
-
+                corner_coords_insert = boundary_corner_points;
+                
+                corner_coords2use = corner_coords(corner_coords_insert,:);
+                
                 % Create the matrix defining the final number of boundary
                 % coordinates
 
@@ -404,6 +407,14 @@ switch boundary_method
 
                 boundary_coords(newDataInd,:) = corner_coords2use(:,:);
 
+                Boundary_verts_ = nan(size(boundary_coords));
+                
+                Boundary_verts_(oldDataInd,1:2) = Boundary_verts;
+                
+                Boundary_verts_(newDataInd,:) = boundary_corner_faces_verts(corner_coords_insert,:);
+                
+                Boundary_verts = Boundary_verts_;
+                
             else
 
                 % If there are no corners, just get the midpoints and use them
@@ -425,6 +436,8 @@ switch boundary_method
             % there will be, so we update it as we go.
             
             BOUNDARY_ROI_ID(nBounds) = roi_ids(i);
+                        
+            BOUNDARY_VERTS{nBounds} = Boundary_verts;
 
             nBounds = nBounds + 1;
             
