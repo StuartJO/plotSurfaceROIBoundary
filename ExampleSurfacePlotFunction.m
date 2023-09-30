@@ -1,4 +1,4 @@
-function [p_left,p_right,c] = ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label,climits)
+function [p_left,p_right,c] = ExampleSurfacePlotFunction(surface,vertex_id,data,cmap,data_label,climits,BoundaryType)
 
 % This is just a example for how to plot the medial and lateral sides of a
 % surface in the same plot
@@ -42,9 +42,13 @@ if nargin < 6
     climits = [nanmin(data) nanmax(data)];
 end
 
+if nargin < 7
+    BoundaryType = 'midpoint';
+end
+
 figure('Position',[461   462   560   325])
 ax_sub1 = axes('Position',[0.005 .33 .49 .66]);
-p_left = plotSurfaceROIBoundary(surface,vertex_id,data,'midpoint',cmap,1,climits);
+p_left = plotSurfaceROIBoundary(surface,vertex_id,data,BoundaryType,cmap,1,climits);
 camlight(80,-10);
 camlight(-80,-10);
 view([-90 0])
@@ -53,7 +57,7 @@ axis off
 axis image
 
 ax_sub2 = axes('Position',[.505 .33 .489 .66]);
-p_right = plotSurfaceROIBoundary(surface,vertex_id,data,'midpoint',cmap,1,climits);
+p_right = plotSurfaceROIBoundary(surface,vertex_id,data,BoundaryType,cmap,1,climits);
 camlight(80,-10);
 camlight(-80,-10);
 view([90 0])
