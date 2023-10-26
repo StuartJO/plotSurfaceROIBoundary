@@ -127,7 +127,8 @@ if colorFaceBoundaries == 1
 
         % Find the boundary faces
 
-        boundary = logical(diff(faces_roi_ids,2,2));
+        %boundary = logical(diff(faces_roi_ids,2,2)); % fails if the rois allocated to a face's vertices follow a pattern like [10, 20, 30] (ie they have the same difference)
+        boundary = any(diff(faces_roi_ids,1,2), 2);
             
         if length(data) ~= length(vertices)
 
