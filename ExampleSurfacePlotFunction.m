@@ -39,7 +39,8 @@ if min(size(data)) == 1
 end
 
 if nargin < 6 
-    climits = [nanmin(data) nanmax(data)];
+    climits = [nanmin(data(:,1)) nanmax(data(:,1))]; 
+    % use first col in case data is in annot file format
 end
 
 if nargin < 7
