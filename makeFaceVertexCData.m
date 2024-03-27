@@ -177,9 +177,9 @@ if colorFaceBoundaries == 1
 
             % Color unknown regions
 
-            FaceVertexCData(isnan(face_data),1) = unknown_color(1);
-            FaceVertexCData(isnan(face_data),2) = unknown_color(2);
-            FaceVertexCData(isnan(face_data),3) = unknown_color(3);
+            FaceVertexCData(isnan(face_data(1:Ndata)),1) = unknown_color(1);
+            FaceVertexCData(isnan(face_data(1:Ndata)),2) = unknown_color(2);
+            FaceVertexCData(isnan(face_data(1:Ndata)),3) = unknown_color(3);
 
             % Color boundary faces
 
@@ -225,9 +225,9 @@ elseif colorFaceBoundaries == 0
 
     FaceVertexCData = cmap(color_ind(1:Ndata),:);
 
-    FaceVertexCData(isnan(vert_data),1) = unknown_color(1);
-    FaceVertexCData(isnan(vert_data),2) = unknown_color(2);
-    FaceVertexCData(isnan(vert_data),3) = unknown_color(3);
+    FaceVertexCData(isnan(vert_data(1:Ndata)),1) = unknown_color(1);
+    FaceVertexCData(isnan(vert_data(1:Ndata)),2) = unknown_color(2);
+    FaceVertexCData(isnan(vert_data(1:Ndata)),3) = unknown_color(3);
 
 end
 
