@@ -16,7 +16,7 @@ ax1 = axes('Position',[0.01 0 .3 1]);
 plotSurfaceROIBoundary(surface,lh_rand200,1:100,'faces',jet(100),2);
 
 % The following options set up the patch object to look pretty. This works
-% well for the left hemisphere (medial and lateral). Change the inputs to 
+% well for the left hemisphere (medial and lateral). Change the inputs to
 % 'view' to see the brain from different angles ([-90 0] for left and [90 0]
 % for right I find works well)
 
@@ -26,8 +26,7 @@ view([-90 0])
 axis off
 axis tight
 axis equal
-axis vis3d
-
+%%
 ax2 = axes('Position',[0.01+(1/3) 0 .3 1]);
 
 cmap = flipud(hot(130));
@@ -45,14 +44,13 @@ view([90 0])
 axis off
 axis tight
 axis equal
-axis vis3d
-
+%%
 ax3 = axes('Position',[0.01+(2/3) 0 .3 1]);
 
 % This plots sulcal depth, which is defined for each vertex
 
 surface.vertices = lh_verts;
-plotSurfaceROIBoundary(surface,lh_aparc,lh_sulc,'centroid',parula(100),4);
+plotSurfaceROIBoundary(surface,lh_aparc,lh_sulc,'centroid',parula(100),1);
 camlight(80,-10);
 camlight(-80,-10);
 
@@ -63,7 +61,7 @@ axis tight
 axis equal
 axis vis3d
 
-% Demonstrate different types of plots
+%% Demonstrate different types of plots
 
 surface.vertices = lh_inflated_verts;
 boundary_type = {'faces','midpoint','centroid','edge_vertices','edge_faces',...
@@ -71,7 +69,7 @@ boundary_type = {'faces','midpoint','centroid','edge_vertices','edge_faces',...
 linewidth = 4;
 
 
-% Set up the colors for each vertex. This mirrors how the redone colour 
+% Set up the colors for each vertex. This mirrors how the redone colour
 % assignment is performed by makeFaceVertexCData
  lh_rand200_color_map = lines(34);
  lh_rand200_ = lh_rand200;
@@ -82,11 +80,11 @@ linewidth = 4;
  lh_rand200_color(isnan(lh_rand200_),:) = .5;
 
  FaceVertexCData = makeFaceVertexCData(surface.vertices,surface.faces,lh_rand200,lh_rand200,lh_rand200_color_map);
- 
+
 for i = 1:10
 
 figure('Position',[0 0  1680 933])
-    
+
     % The data here is just each ROIs own ID number
 
         if i < 6
@@ -99,10 +97,10 @@ figure('Position',[0 0  1680 933])
             if i == 6
             savename = ['sulc_',boundary_type{i},'_flat.png'];
             else
-            savename = ['sulc_',boundary_type{i},'_interp.png'];    
+            savename = ['sulc_',boundary_type{i},'_interp.png'];
             end
         end
-    
+
     p = plotSurfaceROIBoundary(surface,lh_rand200,data,boundary_type{i},cmap,linewidth);
 
     camlight(80,-10);
@@ -114,28 +112,28 @@ figure('Position',[0 0  1680 933])
     axis tight
     axis equal
     %axis vis3d
-    
+
     % Mapping on the ROI id of each vertex to help with understanding how
     % this all works
     hold on
-        
+
     s = scatter3(lh_inflated_verts(:,1)*1.01,lh_inflated_verts(:,2),lh_inflated_verts(:,3),40,lh_rand200_color,'filled');
     s.Clipping = 'off';
     s.MarkerEdgeColor = 'k';
     s.LineWidth = 1;
-    
-    % This just zooms into the area of interest    
+
+    % This just zooms into the area of interest
     ylim([-25.2699   -8.7600])
     zlim([20.2174   31.3705])
 
     p.EdgeColor = 'k';
     p.EdgeAlpha = .5;
-    
+
     % If you wanted to make a colorbar, this is what you would have to do:
     % colormap(cmap)
     % caxis([min(data) max(data)])
     % c = colorbar
-    
+
     %print(['./figures/',savename],'-dpng')
 
 end

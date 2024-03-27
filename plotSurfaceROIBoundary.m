@@ -1,179 +1,233 @@
-function [p,boundary_plot,BOUNDARY] = plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,linewidth,climits)
+function [p, boundary_plot, BOUNDARY] = plotSurfaceROIBoundary(surface,varargin)
+%% Plots brain surface mesh with boundaries between parcels
+% This function plots a colored patch object and demarcates parcels/ROIs on that
+% surface. This requires the input of the surface mesh, the ROI IDs of each
+% vertex, and the data to be used to colour each vertex.
+% 
+% This function plots 3 separate objects: (i) the main coloured patch object,
+% which adjusts to the colormap of the axes on which it is plotted; (ii) another
+% patch object which is used to plot the 'medial wall', and is a fixed color;
+% (iii) a patch or line object to demarcate parcel boundaries (and is also a
+% fixed color). Although the data values of (i) are fixed, the colors can be
+% easily changed by adjust the axes e.g. with `colormap` or `caxis`. The color
+% of (ii) and (iii) is best decided at function runtime, but can be adjusted
+% post hoc by accessing the data in the return arguments if needed.
+% 
+%% Syntax  
+%  plotSurfaceROIBoundary(surface,vertex_id,data,boundary_method,cmap,linewidth)
+% 
+%  plotSurfaceROIBoundary(___,Name,Value)
+% 
+%  p = plotSurfaceROIBoundary(___)
+%  [p,boundary_plot] = plotSurfaceROIBoundary(___)
+%  [p,boundary_plot,BOUNDARY] = plotSurfaceROIBoundary(___)
+% 
+% 
+%% Examples 
+%   figure; plotSurfaceROIBoundary(struct('vertices', [cos([(0:6)';(0:6)']), sin([(0:6)';(0:6)']), [(1:7)';(0:6)']], 'faces', [[1,2,8]+(0:5)';[2,9,8]+(0:5)'])); view([45 45]);   
+%   figure; plotSurfaceROIBoundary(struct('vertices', [cos([(0:6)';(0:6)']), sin([(0:6)';(0:6)']), [(1:7)';(0:6)']], 'faces', [[1,2,8]+(0:5)';[2,9,8]+(0:5)']), [], 1:14); view([45 45]);
+%   figure; plotSurfaceROIBoundary(struct('vertices', [cos([(0:6)';(0:6)']), sin([(0:6)';(0:6)']), [(1:7)';(0:6)']], 'faces', [[1,2,8]+(0:5)';[2,9,8]+(0:5)']), [0;0;1;1;1;0;0;0;1;1;1;1;0;0], 1:14); view([45 45]);
+%   figure; plotSurfaceROIBoundary(struct('vertices', [cos([(0:6)';(0:6)']), sin([(0:6)';(0:6)']), [(1:7)';(0:6)']], 'faces', [[1,2,8]+(0:5)';[2,9,8]+(0:5)']), [1;1;2;2;2;3;3;1;2;2;2;2;3;3], [1 3 2]); view([45 45]);
+% 
+% See the examples in the `demo_*.m` files. 
+% 
+% 
+%% Input arguments  
+%  surface - structure with fields `vertices` and `faces`
+%  `vertices` should be a three column matrix (V x 3) containing xyz coordinates
+%  of the surface mesh. `faces` should be a three column matrix containing the
+%  vertex coordinates used to make each face.
+% 
+%  vertex_id - ROI allocations of each vertex (V x 1 vector)
+%  Vertices indexed `0` will be treated as the 'medial wall' and will be
+%  colored according to `unknown_color`.
+% 
+%  data - data to plot for each vertex or ROI (V x 1 or R x 1 vector)
+%  Data indexed `NaN` will be treated as the 'medial wall' and will be colored
+%  according to `unknown_color`.
+% 
+%  boundary_method - method to delineate ROIs ('faces' (default) | 'midpoint' | 'centroid' | 'edge_faces' | 'edge_vertices')
+%
+%  cmap - colormap to color data (three column matrix | function handle | string)
+%
+%  linewith - linewidth for plotting line between ROIs (positive scalar)
+%
+%  climits - caxis limits (two element matrix)
+% 
+%% Name-Value Arguments  
+%  boundary_color - color to draw faces/lines to separate ROIs (RGB triplet)
+% 
+%  unknown_color - color to draw areas marked as unknown (RGB triplet)
+% 
+%  FaceColor - patch face coloring method ('flat' (default) | 'interp')
+%  
+%  patch_options - options to use when drawing patches (cell array)
+%  The contents of this cell array will be unravelled and passed to PATCH
+%  without modification.
+%  
+%  FacesFromRois - flag to color based on ROI data ('first' (default) | 'mean')
+%  Each face has 3 vertices, but is generally one color. This flag determines
+%  how to determine the color for each face. If set to 'first', the face will be
+%  the color of its first vertex. If set to 'mean', the face will be the color
+%  of the mean values of its vertices.
+% 
+% 
+%% Output Arguments  
+%  p - patch object containing colored data
+%  
+%  boundary_plot - struct containing boundary information with fields 'nanZeroPatch' and 'boundary' 
+%  `nanZeroPatch` is a patch object of vertices indexed with 0 and faces indexes
+%  with NaN. If boundary_method is set to 'faces', `boundary` is a patch object
+%  of the vertices and faces along the boundary between ROIs. Otherwise,
+%  `boundary` is an array of `plot3` objects drawing the lines that make up the
+%  boundary. 
+%  
+%  BOUNDARY - the boundary of the ROIs
+%  For 'faces' this will be a logical where a value of 1 indicates that face is
+%  on the boundary between ROIs. Otherwise, BOUNDARY will be a cell where each
+%  element contains the coordinates of the points making up a boundary, which
+%  can be plotted as a line. Note that each boundary defines a continuous ROI,
+%  if a ROI is made up of multiple non-continuous parts (i.e., the ROI is made
+%  up of multiple unconnected sections), there will be a boundary for each of
+%  those parts
+% 
+% 
+%% See Also  
+%  PATCH
+%  https://au.mathworks.com/help/matlab/ref/matlab.graphics.primitive.patch-properties.html
+%  findROIBoundaries, graphComponents
+% 
+% 
+%% Authors  
+%  Mehul Gajwani, Monash University, 2023
 
-% This script is a wrapper for findROIboundaries and makeFaceVertexCData so
-% that they smoothly work together and you don't have to spend a lot of
-% your own time making them work together. The code sets up the basics of
-% the patch object
 
-% Inputs:
-%
-% surface = a structure with two fields: vertices (the vertices making up 
-% the surface) and faces (the faces of the surface)
-%
-% vertex_id = the roi id of each vertex
-%
-% data = either data for each individual roi or data for each vertex.
-% If you don't want any data to be displayed for a roi or vertex, set that
-% value to NaN. Note that this assumes a roi with a vertex_id has no data
-% to plot. Additionally, if the vertex_ids are non sequential (e.g., like
-% what you get from an .annot file) then data can take the form of a ROI*2
-% matrix, where ROI is the number of regions, each row is a particular 
-% region with the first column being the data to plot and the second being
-% the region ID (should correspond to what is in vertex_id)
-%
-% boundary_method = 'faces', 'midpoint', 'centroid', 'edge_vertices', or 
-% 'edge_faces'. 'faces' will find the faces which exist between ROIs and
-% those will be coloured black to specify the boundary. 'midpoint' finds 
-% the edges that connect the vertices of two different ROIs and takes the
-% midpoint of the edge and uses those coordinates to define the boundary. 
-% 'centroid' finds the faces which exist between ROIs and uses the centroid
-% of those to draw the coordinates that define the boundary. 
-% 'edge_vertices' finds the vertices which define the boundary of the ROI 
-% and uses them for the coordinates. 'edge_faces' finds the edges along
-% faces which make up the boundary and uses them for the coordinates
-%
-% cmap = an N*3 matrix specifying the RGB values making up the colormap to
-% use
-%
-% linewidth = the width of the boundary when using 'midpoint', or 
-% 'centroid'.
-%
-% climits = the range to apply the colormap. This will work perfectly fine
-% if the range specified is larger than the data itself or if the upper
-% limit is larger. However if the lower limit is larger than the smallest
-% value in data, then it may get strange. If colorUnknownGrey = 1, then
-% faces/vertices with a value smaller than the limit will be coloured grey,
-% or potentially black if 'faces' is used. If it is set to 0 and 'faces' is
-% used, those regions will be set to black while if 'centroid' or midpoint' 
-% are selected, the colormap will work appropriately). So if you really 
-% need to enforce a lower limit I would suggest threshold the data in 
-% advance and all should be good.
-%
-% Outputs:
-%
-% p = the patch surface object
-%
-% boundary_plot = a strcture containing a line object defining each
-% boundary
-%
-% BOUNDARY = the boundary of the rois. For 'faces' this will be a logical
-% where a value of 1 indicates that face is on the boundary between ROIs.
-% For 'midpoint', 'centroid' or 'edges', BOUNDARY will be a cell where each 
-% element contains the coordinates of the points making up the boundary, 
-% which can be plotted as a line. Note that each boundary defines a 
-% continuous ROI, if a ROI is made up of multiple non-continuous parts 
-% (i.e., the ROI is made up of multiple unconnected sections), there will 
-% be a boundary for each of those parts
+%% Prelims
+ip = inputParser;
+addRequired(ip, 'surface');
+addOptional(ip, 'vertex_id', []);
+addOptional(ip, 'data', []);
+addOptional(ip, 'boundary_method', 'faces', ...
+    @(x) any(strcmp({'faces','midpoint','centroid','edge_faces','edge_vertices'},x)));
+addOptional(ip, 'cmap', parula);
+addOptional(ip, 'linewidth', 2);
+addOptional(ip, 'climits', []);
 
-% Extract the faces and vertices
-vertices = surface.vertices;
-faces = surface.faces;
+addParameter(ip, 'boundary_color', [0 0 0]);
+addParameter(ip, 'unknown_color', [0.5 0.5 0.5]);
+addParameter(ip, 'patch_options', {'EdgeColor','none','FaceLighting','gouraud'}, @(x) iscell(x));
+addParameter(ip, 'FaceColor', 'flat', @(x) any(strcmp({'flat', 'interp'}, x)) );
+addParameter(ip, 'FacesFromROIs', 'first', @(x) any(strcmp({'first', 'mean'}, x)) );
 
-if nargin < 6
-    linewidth = 2;
+ip.parse(surface, varargin{:});
+
+
+%% Parse inputs
+verts = ip.Results.surface.vertices;
+faces = ip.Results.surface.faces;
+rois = ip.Results.vertex_id;
+data = ip.Results.data;
+
+% If data is in annot file format
+if size(data,2) == 2
+    [~,~,rois] = unique(rois, 'sorted');
+    [~, temp] = sort(data(:,2));
+    data = data(temp, 1);
 end
 
-data_orig = data;
+[verts, faces, rois, data] = ...
+    checkVertsFacesRoisData(verts, faces, rois, data, 'fillEmpty', true);
 
-if sum(vertex_id==0)>0
-    vert0present = 1;
-else
-    vert0present = 0;
-end
+boundary_method         = ip.Results.boundary_method;
+cmap                    = ip.Results.cmap;
+linewidth               = ip.Results.linewidth;
+climits                 = ip.Results.climits;
+patch_options           = ip.Results.patch_options;
+boundary_color          = ip.Results.boundary_color;
+face_color_method       = ip.Results.FaceColor;
+facesFromRois           = ip.Results.FacesFromROIs;
 
-if min(size(data)) == 1
 
-    % Because some steps require concatination in a specific dimension,
-    % the input data needs to be configured such that it is an 1*N array
-
-    if size(data,2) > size(data,1)
-        data = data';
-    end
-    
-    if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
-        error('''data'' needs to either contain one value per roi, contain a value for each vertex, or be an N*2 array showing which data to plot to which ROI ID')
-    end
-    
-    if length(data) ~= length(vertices)    
-       ROI_ids = (1:length(data))';
-    end
-
-else
-    if size(data,2) ~= 2
-       error('If providing ''data'' with ROI ids, then the first column needs to be the data and the second the ROI id') 
-    end
-    
-    ROI_ids = data(:,2);
-    data = data(:,1);
-    
-end
-
-if nargin < 7 
-    climits = [nanmin(data) nanmax(data)];
-end
-
-% Find the boundaries of the ROIs
-switch boundary_method
-    case 'none'
-BOUNDARY = [];        
-    case {'midpoint','centroid','edge_vertices','faces','edge_faces'}
-BOUNDARY = findROIboundaries(vertices,faces,vertex_id,boundary_method);
-    otherwise
-        error([boundary_method,' is not a recognised boundary method'])
-end
-
-% Set up some options. 
-switch boundary_method
-    case 'faces'
-    colorFaceBoundaries = 1;
-% If boundaries are defined by faces, then the face
-% color method for the patch object needs to be 'flat' otherwise it won't
-% work
-    face_color_method = 'flat';
-
-    case {'midpoint','centroid','edge_vertices','edge_faces'}
-        
-    colorFaceBoundaries = 0;
-    
-    if length(data) == length(vertex_id)
-        % If there is data for each individual vertex, use 'interp' for the 
-        % face color 
-        face_color_method = 'interp';
-        
+%% Format data
+% put it at vertex level if it is at ROI level
+% data for a ROI indexed 0 is set to NaN
+if size(data, 1) == max(rois)
+    if any(rois == 0)
+        temp = [nan; data];
+        data = temp(rois+1);
     else
-        % If there is data for each individual ROI, use 'flat' for the 
-        % face color.      
-        face_color_method = 'flat';
+        data = data(rois);
     end
-    case 'none'
-       colorFaceBoundaries = 0; 
-       face_color_method = 'interp';
-    otherwise
-        error('Unrecognised ''boundary_method'' option')
 end
 
-% Get the vertex or face data and colormap to use
 
-% This is the old way of doing it, it generated a new colormap instead of assigning colours to faces/vertices
-%[FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData_old(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,1,climits);
+%% Start by plotting faces indexed 0 or data indexed nan
+% dataFaces are the faces that contain data and should NOT be plotted as part of
+% the boundary or unknown areas
 
-FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data_orig,cmap,climits,colorFaceBoundaries);
+roiFaces = rois(faces);
+nanFaces = any(ismember(faces, find(isnan(data))), 2);
 
-% Plot the surface using some preconfigured options
-p = patch(surface);
-set(p,'FaceVertexCData',FaceVertexCData,'EdgeColor','none','FaceColor',face_color_method,'Clipping','off');
-p.FaceLighting = 'gouraud';
-material dull
+if strcmp(boundary_method, 'faces')
+    dataFaces = any(roiFaces, 2); % faces with any vertex on known region
+else
+    dataFaces = all(roiFaces, 2); % faces with all vertices on known regions
+end
 
-hold on
+boundary_plot.nanZeroPatch = ...
+    patch(struct('Vertices', verts, 'Faces', faces(nanFaces | ~dataFaces,:)), ...
+    'FaceColor', ip.Results.unknown_color, patch_options{:});
+hold on;
 
-% Draw the boundary if 'midpoint' or 'centroid' was used.
 
-switch boundary_method
-    case {'midpoint','centroid','edge_vertices','edge_faces'}
+%% MAIN: Plot the data
+if strcmp(boundary_method, 'faces')
+    boundaryFaces = any(diff(roiFaces, [], 2), 2);
+    BOUNDARY = boundaryFaces;
+else
+    boundaryFaces = zeros(size(faces,1),1);
+end
+
+if strcmp(face_color_method, 'flat')
+    % --> manually create FaceVertexCData by using the first/mean vertex of each face
+    if strcmp(facesFromRois, 'first')
+        data = data(faces(dataFaces&~boundaryFaces,1));
+    else
+        data = mean(data(faces(dataFaces&~boundaryFaces,:)));
+    end
+    % --> otherwise, leave data at vertex level and allow MATLAB to interpolate
+end
+
+p = patch(struct('Vertices', verts, 'Faces', faces(dataFaces&~boundaryFaces,:)), ...
+    'FaceVertexCData', data, 'FaceColor', face_color_method, patch_options{:});
+
+
+%% Plot boundary
+if strcmp(boundary_method, 'faces')
+    boundary_plot.boundary = ...
+        patch(struct('Vertices', verts, 'Faces', faces(boundaryFaces,:)), ...
+        'FaceColor', boundary_color, patch_options{:});
+else
+    BOUNDARY = findROIboundaries(verts,faces,rois,boundary_method);
+    if linewidth > 0
         for i = 1:length(BOUNDARY)
-           boundary_plot.boundary(i) = plot3(BOUNDARY{i}(:,1), BOUNDARY{i}(:,2), BOUNDARY{i}(:,3), 'Color', 'k', 'LineWidth',linewidth,'Clipping','off');
+            boundary_plot.boundary(i) = ...
+                plot3(BOUNDARY{i}(:,1), BOUNDARY{i}(:,2), BOUNDARY{i}(:,3), ...
+                'Color', boundary_color, 'LineWidth',linewidth,'Clipping','off');
         end
-    otherwise
-        boundary_plot = [];
+    end
+end
+
+
+%% Beautify
+material dull;
+colormap(gca, cmap());
+if ~isempty(climits); try caxis(climits); catch; end; end
+
+% camlight(gca, 80, -10);
+% camlight(gca, -80, -10);
+% view([90 0]);
+% axis off equal vis3d;
+
+
 end

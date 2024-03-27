@@ -1,7 +1,7 @@
 function FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cmap,climits,colorFaceBoundaries,unknown_color,boundary_color)
 
 % This script will assign colours to each face/vertex by assigning each
-% value in 'data' a colour from 'cmap'. This code also allows you to 
+% value in 'data' a colour from 'cmap'. This code also allows you to
 % indicate if a particular area should be displayed with any colour at
 % all.
 %
@@ -19,7 +19,7 @@ function FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cma
 % value to NaN. Note that this assumes a roi with a vertex_id has no data
 % to plot. Additionally, if the vertex_ids are non sequential (e.g., like
 % what you get from an .annot file) then data can take the form of a ROI*2
-% matrix, where ROI is the number of regions, each row is a particular 
+% matrix, where ROI is the number of regions, each row is a particular
 % region with the first column being the data to plot and the second being
 % the region ID (should correspond to what is in vertex_id)
 %
@@ -37,7 +37,7 @@ function FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cma
 % suggest threshold the data in advance and all should be good.
 %
 % colorFaceBoundaries = set to 1 if you want the faces which make up the
-% boundaries of each ROI to be coloured black. The code will then configure 
+% boundaries of each ROI to be coloured black. The code will then configure
 % FaceVertexCData to be a value per face instead of per vertex
 %
 % unknown_color = the color to assign to all unknown regions (areas with a
@@ -46,9 +46,9 @@ function FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data,cma
 % boundary_color = the color for the boundary if it is being drawn
 %
 % Output:
-% 
+%
 % FaceVertexCData = the color value for each vertex or face (depending on how
-% colorFaceBoundaries was configured). 
+% colorFaceBoundaries was configured).
 %
 % Stuart Oldham, Monash University, 2020
 % Thanks to the coronavirus for giving me the time to make this script
@@ -67,23 +67,23 @@ if min(size(data)) == 1
     if size(data,2) > size(data,1)
         data = data';
     end
-    
+
     if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
         error('''data'' needs to either contain one value per roi, contain a value for each vertex, or be an N*2 array showing which data to plot to which ROI ID')
     end
-    
-    if length(data) ~= length(vertices)    
+
+    if length(data) ~= length(vertices)
        ROI_ids = (1:length(data))';
     end
 
 else
     if size(data,2) ~= 2
-       error('If providing ''data'' with ROI ids, then the first column needs to be the data and the second the ROI id') 
+       error('If providing ''data'' with ROI ids, then the first column needs to be the data and the second the ROI id')
     end
-    
+
     ROI_ids = data(:,2);
     data = data(:,1);
-    
+
 end
 
 if nargin < 6
@@ -105,7 +105,7 @@ end
 
 if nargin < 9
     % Set the boundary colour (black)
-    boundary_color = [0 0 0];    
+    boundary_color = [0 0 0];
 end
 
 
@@ -116,7 +116,7 @@ if colorFaceBoundaries == 1
 
         % Check if the input_data is data for each ROI, or is data for each
         % vertex
-        
+
         % Find the rois each face is connected to
 
         faces_roi_ids = vertex_id(faces);
@@ -129,13 +129,13 @@ if colorFaceBoundaries == 1
 
         %boundary = logical(diff(faces_roi_ids,2,2)); % fails if the rois allocated to a face's vertices follow a pattern like [10, 20, 30] (ie they have the same difference)
         boundary = any(diff(faces_roi_ids,1,2), 2);
-            
+
         if length(data) ~= length(vertices)
 
             % Map the data from each ROI onto each face which is part of that ROI
 
             Nrois = length(data);
-            
+
             newval = [NaN; data(1:Nrois)];
             oldval = [0; ROI_ids];
 
@@ -148,11 +148,11 @@ if colorFaceBoundaries == 1
 
             % Define the value of each face as the mean of the values
             % assigned to its associated vertices
-            
+
             face_data = nanmean(data(faces),2);
             face_data(face_roi_id==0) = NaN;
         end
-         
+
             % Scale the data if needed
 
             face_data(face_data<cmin) = cmin;
@@ -167,15 +167,15 @@ if colorFaceBoundaries == 1
 
             color_ind = round(rescale(face_data,1,size(cmap,1)));
 
-            % Temporarily assign NaNs (i.e., the value for unknown regions) 
-            % to a value so logical indexing doesn't screw up 
+            % Temporarily assign NaNs (i.e., the value for unknown regions)
+            % to a value so logical indexing doesn't screw up
             color_ind(isnan(color_ind)) = 1;
-            
+
             % Get the color for each face
 
             FaceVertexCData = cmap(color_ind(1:Ndata),:);
 
-            % Color unknown regions 
+            % Color unknown regions
 
             FaceVertexCData(isnan(face_data(1:Ndata)),1) = unknown_color(1);
             FaceVertexCData(isnan(face_data(1:Ndata)),2) = unknown_color(2);
@@ -195,7 +195,7 @@ elseif colorFaceBoundaries == 0
         vert_data = data;
         vert_data(vertex_id==0) = NaN;
     else
-    
+
         Nrois = length(data);
 
         newval = [NaN; data(1:Nrois)];
@@ -206,7 +206,7 @@ elseif colorFaceBoundaries == 0
         for k = 1:numel(newval)
             vert_data(vertex_id == oldval(k)) = newval(k);
         end
-    
+
     end
 
     vert_data(vert_data<cmin) = cmin;
@@ -216,13 +216,13 @@ elseif colorFaceBoundaries == 0
 
     vert_data(Ndata+1) = cmin;
     vert_data(Ndata+2) = cmax;
-    
+
     color_ind = round(rescale(vert_data,1,size(cmap,1)));
 
-    % Temporarily assign NaNs (i.e., the value for unknown regions) 
-    % to a value so logical indexing doesn't screw up 
+    % Temporarily assign NaNs (i.e., the value for unknown regions)
+    % to a value so logical indexing doesn't screw up
     color_ind(isnan(color_ind)) = 1;
-    
+
     FaceVertexCData = cmap(color_ind(1:Ndata),:);
 
     FaceVertexCData(isnan(vert_data(1:Ndata)),1) = unknown_color(1);
