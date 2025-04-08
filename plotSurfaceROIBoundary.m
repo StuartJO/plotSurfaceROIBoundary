@@ -81,6 +81,8 @@ else
     vert0present = 0;
 end
 
+dataIsRGB = 0;
+
 if min(size(data)) == 1
 
     % Because some steps require concatination in a specific dimension,
@@ -99,12 +101,17 @@ if min(size(data)) == 1
     end
 
 else
-    if size(data,2) ~= 2
-       error('If providing ''data'' with ROI ids, then the first column needs to be the data and the second the ROI id') 
-    end
-    
+    % if size(data,2) ~= 2
+    %    error('If providing ''data'' with ROI ids, then the first column needs to be the data and the second the ROI id') 
+    % end
+    if size(data,2)==2
     ROI_ids = data(:,2);
     data = data(:,1);
+    elseif size(data,2)==3
+        dataIsRGB = 1;
+    else
+        error('"data" in unknown configuration')
+    end
     
 end
 
@@ -157,7 +164,26 @@ end
 % This is the old way of doing it, it generated a new colormap instead of assigning colours to faces/vertices
 %[FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData_old(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,1,climits);
 
+if dataIsRGB
+
+    if size(data,1) == length(vertex_id)
+    FaceVertexCData = data;
+    else
+    FaceVertexCData = ones(length(vertex_id),3)*.5;
+    FaceVertexCData(vertex_id~=0,:) = data(vertex_id(vertex_id~=0),:);
+    end
+
+    switch boundary_method
+        case 'faces'
+        FaceVertexCData_ = FaceVertexCData;
+        % A face should only be coloured if all vertices belong to a given region    
+        FaceVertexCData = FaceVertexCData_(faces(:,1),:);
+
+        FaceVertexCData(BOUNDARY,:) = repmat([0 0 0],[sum(BOUNDARY),1]);
+    end
+else
 FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data_orig,cmap,climits,colorFaceBoundaries);
+end
 
 % Plot the surface using some preconfigured options
 p = patch(surface);

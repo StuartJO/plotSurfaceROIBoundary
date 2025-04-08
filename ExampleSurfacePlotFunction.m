@@ -64,7 +64,9 @@ view([90 0])
 axis off
 axis image
 colormap(cmap)
-caxis(climits)
+if climits(1)~=climits(2)
+caxis(climits);
+end
 c = colorbar('Location','southoutside');
 %set(c, 'xlim', [nanmin(data) nanmax(data)],'Position',[.1 .23 .8 .05],'FontSize',20);
 set(c, 'Position',[.1 .23 .8 .05],'FontSize',20);
