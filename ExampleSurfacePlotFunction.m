@@ -42,8 +42,19 @@ if nargin < 6
     climits = [nanmin(data) nanmax(data)];
 end
 
+if isempty(climits)
+    climits = [nanmin(data) nanmax(data)];
+end
+
 if nargin < 7
     BoundaryType = 'midpoint';
+end
+
+if iscell(surface)
+    surface_ = surface;
+    surface = struct;
+    surface.vertices = surface_{1};
+    surface.faces = surface_{2};
 end
 
 figure('Position',[461   462   560   325])

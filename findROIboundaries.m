@@ -66,7 +66,7 @@ switch boundary_method
             faces_roi_ids = vertex_id(faces);
             
             % Find the boundary faces 
-            BOUNDARY = logical(diff(faces_roi_ids,2,2));
+            BOUNDARY = any(faces_roi_ids ~= faces_roi_ids(:,1), 2);
             
             BOUNDARY_ROI_ID = [];
             
@@ -87,7 +87,7 @@ switch boundary_method
     % Calculate how many rois each face belongs to
     n_rois_per_face = sum(diff(sort(faces_roi_ids,2),1,2)~=0,2)+1;
     
-    boundary_faces = logical(diff(faces_roi_ids,2,2));
+    boundary_faces = any(faces_roi_ids ~= faces_roi_ids(:,1), 2);
 
     % Get all possible combinations of edges
 
@@ -475,7 +475,7 @@ switch boundary_method
 
                 BOUNDARY{nBounds} = [Boundary_coords; Boundary_coords(1,:)];
 
-                BOUNDARY_ROI_ID(nBounds) = i;
+                BOUNDARY_ROI_ID(nBounds) = roi_ids(i);
 
                 nBounds = nBounds + 1;   
 
@@ -604,7 +604,7 @@ switch boundary_method
                         
                     BOUNDARY_VERTS{nBounds} = boundary_verts;
                     
-                    BOUNDARY_ROI_ID(nBounds) = i;
+                    BOUNDARY_ROI_ID(nBounds) = roi_ids(i);
 
                     nBounds = nBounds + 1;   
                 end

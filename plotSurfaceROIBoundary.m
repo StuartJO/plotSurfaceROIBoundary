@@ -75,10 +75,19 @@ end
 
 data_orig = data;
 
+if isempty(vertex_id)
+    boundary_method = 'none';
+end
+
+switch boundary_method
+    case {'midpoint','centroid','edge_vertices','edge_faces','faces'}
+
 if sum(vertex_id==0)>0
     vert0present = 1;
 else
     vert0present = 0;
+end
+
 end
 
 dataIsRGB = 0;
@@ -92,12 +101,18 @@ if min(size(data)) == 1
         data = data';
     end
     
+    
+    switch boundary_method
+        case {'midpoint','centroid','edge_vertices','edge_faces','faces'}
+
     if length(data) ~= length(unique(vertex_id))-vert0present && length(data) ~= length(vertex_id)
         error('''data'' needs to either contain one value per roi, contain a value for each vertex, or be an N*2 array showing which data to plot to which ROI ID')
     end
     
     if length(data) ~= length(vertices)    
        ROI_ids = (1:length(data))';
+    end
+
     end
 
 else
@@ -164,6 +179,14 @@ end
 % This is the old way of doing it, it generated a new colormap instead of assigning colours to faces/vertices
 %[FaceVertexCData,new_cmap,new_climits,orig_data_climits] = makeFaceVertexCData_old(vertices,faces,vertex_id,data,cmap,colorFaceBoundaries,1,climits);
 
+if isempty(vertex_id)
+    if dataIsRGB
+        FaceVertexCData = data;
+    else
+        FaceVertexCData = makeFaceVertexCData(vertices,faces,ones(size(data)),data_orig,cmap,climits,colorFaceBoundaries);
+    end
+else
+
 if dataIsRGB
 
     if size(data,1) == length(vertex_id)
@@ -183,6 +206,8 @@ if dataIsRGB
     end
 else
 FaceVertexCData = makeFaceVertexCData(vertices,faces,vertex_id,data_orig,cmap,climits,colorFaceBoundaries);
+end
+
 end
 
 % Plot the surface using some preconfigured options
